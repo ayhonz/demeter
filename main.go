@@ -6,6 +6,6 @@ import (
 )
 
 func main() {
-	server := &CookBookServer{NewInMemoryRecipeStore()}
+	server := NewCookBookServer(NewInMemoryRecipeStore())
 	log.Fatal(http.ListenAndServe(":8081", server))
 }
