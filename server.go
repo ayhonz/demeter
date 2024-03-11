@@ -34,6 +34,7 @@ func NewCookBookServer(store CookBookStore) *CookBookServer {
 
 	router := http.NewServeMux()
 
+	router.Handle("GET /healthz", http.HandlerFunc(s.healthHandler))
 	router.Handle("GET /recipes", http.HandlerFunc(s.getRecipeHandler))
 	router.Handle("GET /recipes/{recipeName}", http.HandlerFunc(s.getRecipeHandler))
 	router.Handle("POST /recipes/{recipeName}", http.HandlerFunc(s.postRecipeHandler))
@@ -41,6 +42,10 @@ func NewCookBookServer(store CookBookStore) *CookBookServer {
 	s.Handler = router
 
 	return s
+}
+
+func (c *CookBookServer) healthHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
 }
 
 func (c *CookBookServer) getRecipeHandler(w http.ResponseWriter, r *http.Request) {

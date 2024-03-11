@@ -36,6 +36,18 @@ func (s *StubRecipeStore) RecordUser(name string) {
 	s.users = append(s.users, User{name})
 }
 
+func TestHealthCheck(t *testing.T) {
+	store := StubRecipeStore{}
+	server := NewCookBookServer(&store)
+
+	request, _ := http.NewRequest(http.MethodGet, "/healthz", nil)
+	response := httptest.NewRecorder()
+
+	server.ServeHTTP(response, request)
+
+	assertStatus(t, response.Code, http.StatusOK)
+}
+
 func TestGETRecipes(t *testing.T) {
 	store := StubRecipeStore{
 		recipes: map[string]Recipe{
