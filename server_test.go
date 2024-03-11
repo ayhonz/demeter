@@ -25,6 +25,15 @@ func (s *StubRecipeStore) GetRecipe(name string) *Recipe {
 	return &recipe
 }
 
+func (s *StubRecipeStore) GetRecipeList() []Recipe {
+	var recipes []Recipe
+	for _, recipe := range s.recipes {
+		recipes = append(recipes, recipe)
+	}
+
+	return recipes
+}
+
 func (s *StubRecipeStore) RecordRecipe(name string) {
 	s.recipeCalls = append(s.recipeCalls, name)
 }
@@ -71,11 +80,12 @@ func TestGETRecipes(t *testing.T) {
 		response := httptest.NewRecorder()
 
 		server.ServeHTTP(response, request)
-		recipe := getRecipeFromResponse(t, response.Body)
+
+		got := getRecipeFromResponse(t, response.Body)
 
 		assertStatus(t, response.Code, http.StatusOK)
 		assertContentType(t, response, jsonContentType)
-		assertRecipe(t, recipe, store.recipes["chicken"])
+		assertRecipe(t, got, store.recipes["chicken"])
 	})
 	t.Run("returns pasta recipe", func(t *testing.T) {
 		request := newGetRecipeRequest("pasta")
@@ -83,12 +93,12 @@ func TestGETRecipes(t *testing.T) {
 
 		server.ServeHTTP(response, request)
 
-		recipe := getRecipeFromResponse(t, response.Body)
-
+		got := getRecipeFromResponse(t, response.Body)
 		assertStatus(t, response.Code, http.StatusOK)
 		assertContentType(t, response, jsonContentType)
-		assertRecipe(t, recipe, store.recipes["pasta"])
+		assertRecipe(t, got, store.recipes["pasta"])
 	})
+
 	t.Run("returns 404 on missing recipe", func(t *testing.T) {
 		request := newGetRecipeRequest("not-there")
 		response := httptest.NewRecorder()
@@ -100,6 +110,22 @@ func TestGETRecipes(t *testing.T) {
 
 		assertStatus(t, got, want)
 
+	})
+
+	t.Run("returns list of recipes", func(t *testing.T) {
+		request, _ := http.NewRequest(http.MethodGet, "/recipes", nil)
+		response := httptest.NewRecorder()
+
+		server.ServeHTTP(response, request)
+		got := getRecipesFromResponse(t, response.Body)
+		want := []Recipe{
+			store.recipes["chicken"],
+			store.recipes["pasta"],
+		}
+
+		assertStatus(t, response.Code, http.StatusOK)
+		assertContentType(t, response, jsonContentType)
+		assertRecipes(t, got, want)
 	})
 }
 
@@ -126,6 +152,16 @@ func TestStoreRecipes(t *testing.T) {
 			t.Errorf("did not store correct recipe got %q want %q", store.recipeCalls[0], recipe)
 		}
 	})
+}
+
+func getRecipesFromResponse(t testing.TB, body io.Reader) (recipes []Recipe) {
+	t.Helper()
+	err := json.NewDecoder(body).Decode(&recipes)
+	if err != nil {
+		t.Fatalf("Unable to parse response from server %q into slice of User, '%v'", body, err)
+	}
+
+	return
 }
 
 func newGetRecipeRequest(name string) *http.Request {
@@ -183,6 +219,13 @@ func assertStatus(t testing.TB, got, want int) {
 }
 
 func assertRecipe(t testing.TB, got, want Recipe) {
+	t.Helper()
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("got %v want %v", got, want)
+	}
+}
+
+func assertRecipes(t testing.TB, got, want []Recipe) {
 	t.Helper()
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("got %v want %v", got, want)

@@ -27,6 +27,16 @@ func (i *InMemoryRecipeStore) GetRecipe(name string) *Recipe {
 	return &recipe
 }
 
+func (i *InMemoryRecipeStore) GetRecipeList() []Recipe {
+	i.lock.Lock()
+	defer i.lock.Unlock()
+	var recipes []Recipe
+	for _, recipe := range i.recipesStore {
+		recipes = append(recipes, recipe)
+	}
+	return recipes
+}
+
 func (i *InMemoryRecipeStore) RecordRecipe(name string) {
 	i.lock.Lock()
 	defer i.lock.Unlock()
