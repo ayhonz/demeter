@@ -2,16 +2,14 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 )
 
 const jsonContentType = "application/json"
 
 type CookBookStore interface {
-	GetRecipe(name string) string
+	GetRecipe(name string) *Recipe
 	RecordRecipe(name string)
-	GetUsers() []User
 }
 
 type CookBookServer struct {
@@ -23,6 +21,12 @@ type User struct {
 	Name string
 }
 
+type Recipe struct {
+	Title       string
+	Description string
+	Ingredients []string
+}
+
 func NewCookBookServer(store CookBookStore) *CookBookServer {
 	s := new(CookBookServer)
 
@@ -30,46 +34,36 @@ func NewCookBookServer(store CookBookStore) *CookBookServer {
 
 	router := http.NewServeMux()
 
+	router.Handle("GET /recipes", http.HandlerFunc(s.getRecipeHandler))
 	router.Handle("GET /recipes/{recipeName}", http.HandlerFunc(s.getRecipeHandler))
-	router.Handle("POST /recipes/{recipeName}", http.HandlerFunc(s.PostRecipeHandler))
-	router.Handle("GET /users", http.HandlerFunc(s.getUserHandler))
+	router.Handle("POST /recipes/{recipeName}", http.HandlerFunc(s.postRecipeHandler))
 
 	s.Handler = router
 
 	return s
 }
 
-func (c *CookBookServer) getUserHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("content-type", jsonContentType)
-	json.NewEncoder(w).Encode(c.store.GetUsers())
-}
-
-func (c *CookBookServer) getUserTable() []User {
-	return []User{
-		{"John"},
-		{"Dennosuke"},
-	}
-
-}
-
 func (c *CookBookServer) getRecipeHandler(w http.ResponseWriter, r *http.Request) {
 	recipe := r.PathValue("recipeName")
+	w.Header().Set("content-type", jsonContentType)
 
 	c.showRecipe(w, recipe)
 }
 
-func (c *CookBookServer) PostRecipeHandler(w http.ResponseWriter, r *http.Request) {
+func (c *CookBookServer) postRecipeHandler(w http.ResponseWriter, r *http.Request) {
 	recipe := r.PathValue("recipeName")
 
 	c.processRecipe(w, recipe)
 }
 
-func (c *CookBookServer) showRecipe(w http.ResponseWriter, recipe string) {
-	recipeName := c.store.GetRecipe(recipe)
-	if recipeName == "" {
+func (c *CookBookServer) showRecipe(w http.ResponseWriter, recipeName string) {
+	recipe := c.store.GetRecipe(recipeName)
+	if recipe == nil {
 		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(nil)
+	} else {
+		json.NewEncoder(w).Encode(recipe)
 	}
-	fmt.Fprint(w, recipeName)
 }
 
 func (c *CookBookServer) processRecipe(w http.ResponseWriter, recipe string) {
