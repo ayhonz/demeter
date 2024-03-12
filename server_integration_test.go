@@ -7,7 +7,9 @@ import (
 )
 
 func TestRecordingRecipesAndRetrievingThem(t *testing.T) {
-	store := NewInMemoryRecipeStore()
+	database, cleanDatabase := createTempFile(t, "")
+	defer cleanDatabase()
+	store := NewFileSystemRecipeStore(database)
 	server := NewCookBookServer(store)
 	recipe := "chicken"
 

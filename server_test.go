@@ -154,14 +154,14 @@ func TestStoreRecipes(t *testing.T) {
 	})
 }
 
-func getRecipesFromResponse(t testing.TB, body io.Reader) (recipes []Recipe) {
+func getRecipesFromResponse(t testing.TB, body io.Reader) []Recipe {
 	t.Helper()
-	err := json.NewDecoder(body).Decode(&recipes)
+	recipeList, err := NewRecipeList(body)
 	if err != nil {
 		t.Fatalf("Unable to parse response from server %q into slice of User, '%v'", body, err)
 	}
 
-	return
+	return recipeList
 }
 
 func newGetRecipeRequest(name string) *http.Request {
