@@ -14,7 +14,8 @@ func TestFileSystemRecipes(t *testing.T) {
             ]`)
 		defer cleanDatabase()
 
-		store := NewFileSystemRecipeStore(database)
+		store, err := NewFileSystemRecipeStore(database)
+		assertNoError(t, err)
 
 		got := store.GetRecipeList()
 		want := []Recipe{
@@ -34,7 +35,8 @@ func TestFileSystemRecipes(t *testing.T) {
             {"Title": "Pasta recipe", "Description": "", "Ingredients": []}
             ]`)
 		defer cleanDatabase()
-		store := NewFileSystemRecipeStore(database)
+		store, err := NewFileSystemRecipeStore(database)
+		assertNoError(t, err)
 
 		got := store.GetRecipe("Chicken recipe")
 		want := Recipe{Title: "Chicken recipe", Description: "", Ingredients: []string{}}
@@ -47,13 +49,23 @@ func TestFileSystemRecipes(t *testing.T) {
             ]`)
 		defer cleanDatabase()
 
-		store := NewFileSystemRecipeStore(database)
+		store, err := NewFileSystemRecipeStore(database)
+		assertNoError(t, err)
 		store.RecordRecipe("Chicken recipe")
 
 		got := store.GetRecipe("Chicken recipe")
 		want := Recipe{Title: "Chicken recipe", Description: "", Ingredients: []string{}}
 
 		assertRecipeEquals(t, *got, want)
+	})
+
+	t.Run("works with empty file", func(t *testing.T) {
+		database, cleanDatabase := createTempFile(t, "")
+		defer cleanDatabase()
+
+		_, err := NewFileSystemRecipeStore(database)
+
+		assertNoError(t, err)
 	})
 
 }
@@ -81,5 +93,12 @@ func assertRecipeEquals(t *testing.T, got, want Recipe) {
 	t.Helper()
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("got %v want %v", got, want)
+	}
+}
+
+func assertNoError(t *testing.T, err error) {
+	t.Helper()
+	if err != nil {
+		t.Errorf("didn't expect an error but got one, %v", err)
 	}
 }

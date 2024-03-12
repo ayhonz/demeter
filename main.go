@@ -14,7 +14,11 @@ func main() {
 		log.Fatalf("problem opening %s %v", dbFileName, err)
 	}
 
-	store := NewFileSystemRecipeStore(db)
+	store, err := NewFileSystemRecipeStore(db)
+	if err != nil {
+		log.Fatalf("problem creating file system recipe store, %v ", err)
+	}
+
 	server := NewCookBookServer(store)
 	if err := http.ListenAndServe(":6969", server); err != nil {
 		log.Fatalf("could not listen on port 6969 %v", err)

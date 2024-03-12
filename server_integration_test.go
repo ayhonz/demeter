@@ -7,9 +7,12 @@ import (
 )
 
 func TestRecordingRecipesAndRetrievingThem(t *testing.T) {
-	database, cleanDatabase := createTempFile(t, "")
+	database, cleanDatabase := createTempFile(t, "[]")
 	defer cleanDatabase()
-	store := NewFileSystemRecipeStore(database)
+	store, err := NewFileSystemRecipeStore(database)
+	if err != nil {
+		t.Fatalf("didn't expect an error but got one %v", err)
+	}
 	server := NewCookBookServer(store)
 	recipe := "chicken"
 

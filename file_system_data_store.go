@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 )
 
@@ -10,14 +11,39 @@ type FileSystemRecipeStore struct {
 	recipes  []Recipe
 }
 
-func NewFileSystemRecipeStore(database *os.File) *FileSystemRecipeStore {
-	database.Seek(0, 0)
-	recipes, _ := NewRecipeList(database)
-	return &FileSystemRecipeStore{
-		database: json.NewEncoder(&tape{database}),
-		recipes:  recipes,
+func NewFileSystemRecipeStore(file *os.File) (*FileSystemRecipeStore, error) {
+	err := initialiseRecipeDBFile(file)
+	if err != nil {
+		return nil, fmt.Errorf("problem getting file info from file %s, %v", file.Name(), err)
+
 	}
 
+	recipes, err := NewRecipeList(file)
+	if err != nil {
+		return nil, fmt.Errorf("problem loading recipe store from file %s %v", file.Name(), err)
+
+	}
+	return &FileSystemRecipeStore{
+		database: json.NewEncoder(&tape{file}),
+		recipes:  recipes,
+	}, nil
+
+}
+
+func initialiseRecipeDBFile(file *os.File) error {
+	file.Seek(0, 0)
+	info, err := file.Stat()
+
+	if err != nil {
+		return fmt.Errorf("problem getting file info from file %s, %v", file.Name(), err)
+	}
+
+	if info.Size() == 0 {
+		file.Write([]byte("[]"))
+		file.Seek(0, 0)
+	}
+
+	return nil
 }
 
 func (f *FileSystemRecipeStore) GetRecipeList() []Recipe {
