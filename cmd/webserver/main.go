@@ -1,6 +1,8 @@
 package main
 
 import (
+	"github.com/ayhonz/racook"
+
 	"log"
 	"net/http"
 	"os"
@@ -14,12 +16,12 @@ func main() {
 		log.Fatalf("problem opening %s %v", dbFileName, err)
 	}
 
-	store, err := NewFileSystemRecipeStore(db)
+	store, err := cookbook.NewFileSystemRecipeStore(db)
 	if err != nil {
 		log.Fatalf("problem creating file system recipe store, %v ", err)
 	}
 
-	server := NewCookBookServer(store)
+	server := cookbook.NewCookBookServer(store)
 	if err := http.ListenAndServe(":6969", server); err != nil {
 		log.Fatalf("could not listen on port 6969 %v", err)
 
