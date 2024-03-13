@@ -3,6 +3,8 @@ package cookbook
 import (
 	"encoding/json"
 	"net/http"
+
+	"github.com/go-chi/chi/v5"
 )
 
 const jsonContentType = "application/json"
@@ -33,20 +35,23 @@ func NewCookBookServer(store CookBookStore) *CookBookServer {
 
 	s.store = store
 
-	router := http.NewServeMux()
+	// router := chi.NewRouter()
 
-	router.Handle("GET /healthz", http.HandlerFunc(s.healthHandler))
-	router.Handle("GET /recipes", http.HandlerFunc(s.getRecipesHandler))
-	router.Handle("GET /recipes/{recipeName}", http.HandlerFunc(s.getRecipeHandler))
-	router.Handle("POST /recipes/{recipeName}", http.HandlerFunc(s.postRecipeHandler))
+	v1Router := chi.NewRouter()
+	// router.Mount("v1", v1Router)
 
-	s.Handler = router
+	v1Router.Get("/healthz", s.healthHandler)
+	v1Router.Get("/recipes", s.getRecipesHandler)
+	v1Router.Get("/recipes/{recipeName}", s.getRecipeHandler)
+	v1Router.Post("/recipes/{recipeName}", s.postRecipeHandler)
+
+	s.Handler = v1Router
 
 	return s
 }
 
 func (c *CookBookServer) healthHandler(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
+	responseWithJSON(w, http.StatusOK, "OK")
 }
 
 func (c *CookBookServer) getRecipeHandler(w http.ResponseWriter, r *http.Request) {

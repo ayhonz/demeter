@@ -16,6 +16,8 @@ func TestHealthCheck(t *testing.T) {
 	server.ServeHTTP(response, request)
 
 	assertStatus(t, response.Code, http.StatusOK)
+	assertContentType(t, response, jsonContentType)
+	assertResponseBody(t, response.Body.String(), "\"OK\"")
 }
 
 func TestGETRecipes(t *testing.T) {
