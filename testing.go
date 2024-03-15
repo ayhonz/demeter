@@ -57,22 +57,22 @@ func getRecipesFromResponse(t testing.TB, body io.Reader) []Recipe {
 }
 
 func newGetRecipeRequest(name string) *http.Request {
-	req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/recipes/%s", name), nil)
+	req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/v1/recipes/%s", name), nil)
 	return req
 }
 
 func newPostRecipeRequest(name string) *http.Request {
-	req, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("/recipes/%s", name), nil)
+	req, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("/v1/recipes/%s", name), nil)
 	return req
 }
 
 func newGetUserRequest() *http.Request {
-	request, _ := http.NewRequest(http.MethodGet, "/users", nil)
+	request, _ := http.NewRequest(http.MethodGet, "/v1/users", nil)
 	return request
 }
 
 func newPostUserRequest(name string) *http.Request {
-	request, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("/users/%s", name), nil)
+	request, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("/v1/users/%s", name), nil)
 	return request
 }
 

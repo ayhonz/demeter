@@ -10,7 +10,7 @@ func TestHealthCheck(t *testing.T) {
 	store := StubRecipeStore{}
 	server := NewCookBookServer(&store)
 
-	request, _ := http.NewRequest(http.MethodGet, "/healthz", nil)
+	request, _ := http.NewRequest(http.MethodGet, "/v1/healthz", nil)
 	response := httptest.NewRecorder()
 
 	server.ServeHTTP(response, request)
@@ -76,7 +76,7 @@ func TestGETRecipes(t *testing.T) {
 	})
 
 	t.Run("returns list of recipes", func(t *testing.T) {
-		request, _ := http.NewRequest(http.MethodGet, "/recipes", nil)
+		request, _ := http.NewRequest(http.MethodGet, "/v1/recipes", nil)
 		response := httptest.NewRecorder()
 
 		server.ServeHTTP(response, request)

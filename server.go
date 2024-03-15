@@ -35,17 +35,17 @@ func NewCookBookServer(store CookBookStore) *CookBookServer {
 
 	s.store = store
 
-	// router := chi.NewRouter()
+	router := chi.NewRouter()
 
 	v1Router := chi.NewRouter()
-	// router.Mount("v1", v1Router)
+	router.Mount("/v1", v1Router)
 
 	v1Router.Get("/healthz", s.healthHandler)
 	v1Router.Get("/recipes", s.getRecipesHandler)
 	v1Router.Get("/recipes/{recipeName}", s.getRecipeHandler)
 	v1Router.Post("/recipes/{recipeName}", s.postRecipeHandler)
 
-	s.Handler = v1Router
+	s.Handler = router
 
 	return s
 }
