@@ -18,7 +18,7 @@ func responseWithError(w http.ResponseWriter, status int, message string) {
 	responseWithJSON(w, status, ErrorResponse{Error: message})
 }
 
-func responseWithJSON(w http.ResponseWriter, status int, payload interface{}) {
+func responseWithJSON[T any](w http.ResponseWriter, status int, payload T) {
 	data, err := json.Marshal(payload)
 	if err != nil {
 		log.Printf("Failed to Marshal JSON response, %v", err)
