@@ -96,6 +96,7 @@ func TestStoreRecipes(t *testing.T) {
 	store := StubRecipeStore{
 		recipes: map[string]Recipe{},
 	}
+
 	server := NewCookBookServer(&store)
 
 	t.Run("it records recipe when POST", func(t *testing.T) {

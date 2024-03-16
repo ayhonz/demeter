@@ -31,23 +31,23 @@ type Recipe struct {
 }
 
 func NewCookBookServer(store CookBookStore) *CookBookServer {
-	s := new(CookBookServer)
+	server := new(CookBookServer)
 
-	s.store = store
+	server.store = store
 
 	router := chi.NewRouter()
 
 	v1Router := chi.NewRouter()
 	router.Mount("/v1", v1Router)
 
-	v1Router.Get("/healthz", s.healthHandler)
-	v1Router.Get("/recipes", s.getRecipesHandler)
-	v1Router.Get("/recipes/{recipeName}", s.getRecipeHandler)
-	v1Router.Post("/recipes/{recipeName}", s.postRecipeHandler)
+	v1Router.Get("/healthz", server.healthHandler)
+	v1Router.Get("/recipes", server.getRecipesHandler)
+	v1Router.Get("/recipes/{recipeName}", server.getRecipeHandler)
+	v1Router.Post("/recipes/{recipeName}", server.postRecipeHandler)
 
-	s.Handler = router
+	server.Handler = router
 
-	return s
+	return server
 }
 
 func (c *CookBookServer) healthHandler(w http.ResponseWriter, r *http.Request) {

@@ -22,8 +22,9 @@ func main() {
 	}
 
 	server := cookbook.NewCookBookServer(store)
+
+	log.Println("Starting server on :6969")
 	if err := http.ListenAndServe(":6969", server); err != nil {
 		log.Fatalf("could not listen on port 6969 %v", err)
-
 	}
 }

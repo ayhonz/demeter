@@ -14,6 +14,7 @@ func TestRecordingRecipesAndRetrievingThem(t *testing.T) {
 		t.Fatalf("didn't expect an error but got one %v", err)
 	}
 	server := NewCookBookServer(store)
+
 	recipe := "chicken"
 
 	server.ServeHTTP(httptest.NewRecorder(), newPostRecipeRequest(recipe))
