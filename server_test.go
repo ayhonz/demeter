@@ -4,6 +4,10 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
+
+	"github.com/ayhonz/racook/internal/database"
+	"github.com/google/uuid"
 )
 
 func TestHealthCheck(t *testing.T) {
@@ -21,17 +25,25 @@ func TestHealthCheck(t *testing.T) {
 }
 
 func TestGETRecipes(t *testing.T) {
+	recipeID := uuid.New()
+	UserID := uuid.New()
 	store := StubRecipeStore{
-		recipes: map[string]Recipe{
-			"chicken": {
-				Title:       "chicken recipe",
-				Description: "",
-				Ingredients: []string{},
+		recipes: []database.Recipe{
+			{
+				ID:          recipeID,
+				Title:       "chicken",
+				Description: "delicios chicken",
+				CreatedAt:   time.Now().UTC(),
+				UpdatedAt:   time.Now().UTC(),
+				UserID:      UserID,
 			},
-			"pasta": {
-				Title:       "pasta recipe",
-				Description: "",
-				Ingredients: []string{},
+			{
+				ID:          recipeID,
+				Title:       "pasta",
+				Description: "delicios pasta",
+				CreatedAt:   time.Now().UTC(),
+				UpdatedAt:   time.Now().UTC(),
+				UserID:      UserID,
 			},
 		},
 	}
@@ -39,7 +51,7 @@ func TestGETRecipes(t *testing.T) {
 	server := NewCookBookServer(&store)
 
 	t.Run("returns chicken recipe", func(t *testing.T) {
-		request := newGetRecipeRequest("chicken")
+		request := newGetRecipeRequest(recipeID)
 		response := httptest.NewRecorder()
 
 		server.ServeHTTP(response, request)
@@ -48,22 +60,11 @@ func TestGETRecipes(t *testing.T) {
 
 		assertStatus(t, response.Code, http.StatusOK)
 		assertContentType(t, response, jsonContentType)
-		assertRecipe(t, got, store.recipes["chicken"])
-	})
-	t.Run("returns pasta recipe", func(t *testing.T) {
-		request := newGetRecipeRequest("pasta")
-		response := httptest.NewRecorder()
-
-		server.ServeHTTP(response, request)
-
-		got := getRecipeFromResponse(t, response.Body)
-		assertStatus(t, response.Code, http.StatusOK)
-		assertContentType(t, response, jsonContentType)
-		assertRecipe(t, got, store.recipes["pasta"])
+		assertRecipe(t, database.Recipe(got), store.recipes[0])
 	})
 
-	t.Run("returns 404 on missing recipe", func(t *testing.T) {
-		request := newGetRecipeRequest("not-there")
+	t.Run("returns 404 on not found recipe", func(t *testing.T) {
+		request := newGetRecipeRequest(uuid.New())
 		response := httptest.NewRecorder()
 
 		server.ServeHTTP(response, request)
@@ -72,7 +73,6 @@ func TestGETRecipes(t *testing.T) {
 		want := http.StatusNotFound
 
 		assertStatus(t, got, want)
-
 	})
 
 	t.Run("returns list of recipes", func(t *testing.T) {
@@ -81,39 +81,36 @@ func TestGETRecipes(t *testing.T) {
 
 		server.ServeHTTP(response, request)
 		got := getRecipesFromResponse(t, response.Body)
-		want := []Recipe{
-			store.recipes["chicken"],
-			store.recipes["pasta"],
-		}
 
 		assertStatus(t, response.Code, http.StatusOK)
 		assertContentType(t, response, jsonContentType)
-		assertRecipes(t, got, want)
+		assertRecipes(t, got, store.recipes)
 	})
 }
 
 func TestStoreRecipes(t *testing.T) {
 	store := StubRecipeStore{
-		recipes: map[string]Recipe{},
+		recipes: []database.Recipe{},
 	}
 
 	server := NewCookBookServer(&store)
 
 	t.Run("it records recipe when POST", func(t *testing.T) {
-		recipe := "chicken"
 
-		request := newPostRecipeRequest(recipe)
+		json := []byte(`{"title": "chicken", "description": "delicious chicken"}`)
+		request := newPostRecipeRequest(json)
 		response := httptest.NewRecorder()
 
 		server.ServeHTTP(response, request)
 
 		assertStatus(t, response.Code, http.StatusAccepted)
 
-		if len(store.recipeCalls) != 1 {
-			t.Errorf("got %d calls to RecordRecipe want %d", len(store.recipeCalls), 1)
+		if len(store.recipes) != 1 {
+			t.Errorf("got %d calls to RecordRecipe want %d", len(store.recipes), 1)
 		}
-		if store.recipeCalls[0] != recipe {
-			t.Errorf("did not store correct recipe got %q want %q", store.recipeCalls[0], recipe)
+
+		if store.recipes[0].Title != "chicken" {
+			t.Errorf("did not store correct recipe got %q want %q", store.recipes[0].Title, "chicken")
 		}
 	})
 }

@@ -2,35 +2,24 @@ package cookbook
 
 import (
 	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
+	"time"
 
+	"github.com/ayhonz/racook/internal/database"
 	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 )
 
 const jsonContentType = "application/json"
 
-type CookBookStore interface {
-	GetRecipe(name string) *Recipe
-	GetRecipeList() []Recipe
-	RecordRecipe(name string)
-}
-
 type CookBookServer struct {
-	store CookBookStore
+	store database.Querier
 	http.Handler
 }
 
-type User struct {
-	Name string
-}
-
-type Recipe struct {
-	Title       string
-	Description string
-	Ingredients []string
-}
-
-func NewCookBookServer(store CookBookStore) *CookBookServer {
+func NewCookBookServer(store database.Querier) *CookBookServer {
 	server := new(CookBookServer)
 
 	server.store = store
@@ -41,9 +30,12 @@ func NewCookBookServer(store CookBookStore) *CookBookServer {
 	router.Mount("/v1", v1Router)
 
 	v1Router.Get("/healthz", server.healthHandler)
-	v1Router.Get("/recipes", server.getRecipesHandler)
-	v1Router.Get("/recipes/{recipeName}", server.getRecipeHandler)
-	v1Router.Post("/recipes/{recipeName}", server.postRecipeHandler)
+
+	v1Router.Post("/recipes", server.createRecipeHandler)
+	v1Router.Get("/recipes", server.getRecipes)
+	v1Router.Get("/recipes/{id}", server.getRecipeByIDHandler)
+
+	v1Router.Post("/users", server.createUserHandler)
 
 	server.Handler = router
 
@@ -54,42 +46,94 @@ func (c *CookBookServer) healthHandler(w http.ResponseWriter, r *http.Request) {
 	responseWithJSON(w, http.StatusOK, "OK")
 }
 
-func (c *CookBookServer) getRecipeHandler(w http.ResponseWriter, r *http.Request) {
-	recipe := r.PathValue("recipeName")
-	w.Header().Set("content-type", jsonContentType)
-
-	c.showRecipe(w, recipe)
-}
-
-func (c *CookBookServer) getRecipesHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("content-type", jsonContentType)
-
-	recipes := c.store.GetRecipeList()
-	if recipes == nil {
-		w.WriteHeader(http.StatusNotFound)
-		json.NewEncoder(w).Encode(nil)
-	} else {
-		json.NewEncoder(w).Encode(recipes)
+func (c *CookBookServer) createRecipeHandler(w http.ResponseWriter, r *http.Request) {
+	type parameters struct {
+		Title       string `json:"title"`
+		Description string `json:"description"`
 	}
-}
 
-func (c *CookBookServer) postRecipeHandler(w http.ResponseWriter, r *http.Request) {
-	recipe := r.PathValue("recipeName")
-
-	c.processRecipe(w, recipe)
-}
-
-func (c *CookBookServer) showRecipe(w http.ResponseWriter, recipeName string) {
-	recipe := c.store.GetRecipe(recipeName)
-	if recipe == nil {
-		w.WriteHeader(http.StatusNotFound)
-		json.NewEncoder(w).Encode(nil)
-	} else {
-		json.NewEncoder(w).Encode(recipe)
+	params := new(parameters)
+	err := json.NewDecoder(r.Body).Decode(params)
+	if err != nil {
+		responseWithError(w, 400, fmt.Sprintf("error parsing JSON %v", err))
 	}
+
+	userId, _ := uuid.Parse("68f4db84-355e-431f-b7b1-cf4688946e14")
+
+	recipe, err := c.store.CreateRecipe(r.Context(), database.CreateRecipeParams{
+		ID:          uuid.New(),
+		Title:       params.Title,
+		Description: params.Description,
+		UpdatedAt:   time.Now().UTC(),
+		CreatedAt:   time.Now().UTC(),
+		UserID:      userId,
+	})
+	if err != nil {
+		responseWithError(w, 400, fmt.Sprintf("Could't create user %v", err))
+		return
+	}
+
+	responseWithJSON(w, 202, databaseRecipeToRecipe(recipe))
 }
 
-func (c *CookBookServer) processRecipe(w http.ResponseWriter, recipe string) {
-	c.store.RecordRecipe(recipe)
-	w.WriteHeader(http.StatusAccepted)
+func (c *CookBookServer) getRecipeByIDHandler(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+
+	recipeID, err := uuid.Parse(id)
+	if err != nil {
+		responseWithError(w, 400, fmt.Sprintf("error parsing ID %v", err))
+		return
+	}
+
+	recipe, err := c.store.GetRecipeByID(r.Context(), recipeID)
+	if err != nil {
+		responseWithError(w, 404, "Recipe not found")
+		return
+	}
+
+	responseWithJSON(w, 200, databaseRecipeToRecipe(recipe))
+}
+
+func (c *CookBookServer) getRecipes(w http.ResponseWriter, r *http.Request) {
+	recipes, err := c.store.GetRecipes(r.Context())
+	if err != nil {
+		log.Printf("error getting recipes %v", err)
+		responseWithError(w, 404, fmt.Sprint("Recipes not found"))
+		return
+	}
+
+	response := make([]Recipe, len(recipes))
+
+	for i, recipe := range recipes {
+		response[i] = databaseRecipeToRecipe(recipe)
+	}
+
+	responseWithJSON(w, 200, response)
+}
+
+func (c *CookBookServer) createUserHandler(w http.ResponseWriter, r *http.Request) {
+	type parameters struct {
+		FirstName string `json:"firstName"`
+		LastName  string `json:"lastName"`
+	}
+	params := new(parameters)
+	err := json.NewDecoder(r.Body).Decode(params)
+	if err != nil {
+		responseWithError(w, 400, fmt.Sprintf("error parsing JSON %v", err))
+	}
+	user, err := c.store.CreateUser(r.Context(), database.CreateUserParams{
+		ID:        uuid.New(),
+		FirstName: params.FirstName,
+		LastName:  params.LastName,
+		CreatedAt: time.Now().UTC(),
+		UpdatedAt: time.Now().UTC(),
+	})
+
+	if err != nil {
+		responseWithError(w, 400, fmt.Sprintf("Could't create user %v", err))
+		return
+
+	}
+
+	responseWithJSON(w, 201, databaseUserToUser(user))
 }

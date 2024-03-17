@@ -1,6 +1,8 @@
 package cookbook
 
 import (
+	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -9,60 +11,80 @@ import (
 	"os"
 	"reflect"
 	"testing"
+
+	"github.com/ayhonz/racook/internal/database"
+	"github.com/google/uuid"
 )
 
 type StubRecipeStore struct {
-	recipes     map[string]Recipe
-	recipeCalls []string
-	users       []User
+	recipes []database.Recipe
+	users   []database.User
 }
 
-func (s *StubRecipeStore) GetRecipe(name string) *Recipe {
-	recipe, ok := s.recipes[name]
-	if !ok {
-		return nil
+func (s *StubRecipeStore) CreateRecipe(ctx context.Context, arg database.CreateRecipeParams) (database.Recipe, error) {
+	recipe := database.Recipe{
+		ID:          arg.ID,
+		CreatedAt:   arg.CreatedAt,
+		UpdatedAt:   arg.UpdatedAt,
+		Title:       arg.Title,
+		Description: arg.Description,
+		UserID:      arg.UserID,
 	}
-
-	return &recipe
+	s.recipes = append(s.recipes, recipe)
+	return recipe, nil
 }
 
-func (s *StubRecipeStore) GetRecipeList() []Recipe {
-	var recipes []Recipe
+func (s *StubRecipeStore) CreateUser(ctx context.Context, arg database.CreateUserParams) (database.User, error) {
+	return database.User{
+		ID:        arg.ID,
+		CreatedAt: arg.CreatedAt,
+		UpdatedAt: arg.UpdatedAt,
+		FirstName: arg.FirstName,
+		LastName:  arg.LastName,
+	}, nil
+}
+
+func (s *StubRecipeStore) GetRecipeByID(ctx context.Context, id uuid.UUID) (database.Recipe, error) {
 	for _, recipe := range s.recipes {
-		recipes = append(recipes, recipe)
+		if recipe.ID == id {
+			return recipe, nil
+		}
+	}
+	return database.Recipe{}, fmt.Errorf("recipe not found")
+}
+
+func (s *StubRecipeStore) GetUserByID(ctx context.Context, id uuid.UUID) (database.User, error) {
+	for _, user := range s.users {
+		if user.ID == id {
+			return user, nil
+		}
 	}
 
-	return recipes
+	return database.User{}, fmt.Errorf("user not found")
 }
 
-func (s *StubRecipeStore) RecordRecipe(name string) {
-	s.recipeCalls = append(s.recipeCalls, name)
-}
-
-func (s *StubRecipeStore) GetUsers() []User {
-	return s.users
-}
-func (s *StubRecipeStore) RecordUser(name string) {
-	s.users = append(s.users, User{name})
+func (s *StubRecipeStore) GetRecipes(ctx context.Context) ([]database.Recipe, error) {
+	return s.recipes, nil
 }
 
 func getRecipesFromResponse(t testing.TB, body io.Reader) []Recipe {
 	t.Helper()
 	recipeList, err := NewRecipeList(body)
 	if err != nil {
-		t.Fatalf("Unable to parse response from server %q into slice of User, '%v'", body, err)
+		t.Fatalf("Unable to parse response from server %q into slice of Recipes, '%v'", body, err)
 	}
 
 	return recipeList
 }
 
-func newGetRecipeRequest(name string) *http.Request {
-	req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/v1/recipes/%s", name), nil)
+func newGetRecipeRequest(id uuid.UUID) *http.Request {
+	req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/v1/recipes/%s", id), nil)
 	return req
 }
 
-func newPostRecipeRequest(name string) *http.Request {
-	req, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("/v1/recipes/%s", name), nil)
+func newPostRecipeRequest(json []byte) *http.Request {
+	body := bytes.NewReader(json)
+	req, _ := http.NewRequest(http.MethodPost, "/v1/recipes", body)
 	return req
 }
 
@@ -110,17 +132,23 @@ func assertStatus(t testing.TB, got, want int) {
 	}
 }
 
-func assertRecipe(t testing.TB, got, want Recipe) {
+func assertRecipe(t testing.TB, got, want database.Recipe) {
 	t.Helper()
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("got %v want %v", got, want)
+		t.Errorf("got %+v\n want %+v", got, want)
 	}
 }
 
-func assertRecipes(t testing.TB, got, want []Recipe) {
+func assertRecipes(t testing.TB, got []Recipe, want []database.Recipe) {
 	t.Helper()
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("got %v want %v", got, want)
+
+	if len(got) != len(want) {
+		t.Errorf("got %d recipes want %d", len(got), len(want))
+	}
+	for i, v := range got {
+		if !reflect.DeepEqual(database.Recipe(v), want[i]) {
+			t.Errorf("got %v want %v", got, want)
+		}
 	}
 }
 
