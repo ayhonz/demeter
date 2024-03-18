@@ -97,20 +97,31 @@ func (c *CookBookServer) getRecipeByIDHandler(w http.ResponseWriter, r *http.Req
 
 func (c *CookBookServer) getRecipes(w http.ResponseWriter, r *http.Request) {
 	limitStr := r.URL.Query().Get("limit")
+	offsetStr := r.URL.Query().Get("offset")
 	var limit int32 = 10
+	var offset int32 = 0
 	if limitStr != "" {
 		var err error
-		limits, err := strconv.ParseInt(limitStr, 10, 32)
-		limit = int32(limits)
+		limitInt, err := strconv.ParseInt(limitStr, 10, 32)
+		limit = int32(limitInt)
 		if err != nil {
 			responseWithError(w, 400, fmt.Sprint("Invalid limit"))
+			return
+		}
+	}
+	if offsetStr != "" {
+		var err error
+		offsetInt, err := strconv.ParseInt(offsetStr, 10, 32)
+		offset = int32(offsetInt)
+		if err != nil {
+			responseWithError(w, 400, fmt.Sprint("Invalid offset"))
 			return
 		}
 	}
 
 	recipes, err := c.store.GetRecipes(r.Context(), database.GetRecipesParams{
 		Limit:  limit,
-		Offset: 0,
+		Offset: offset,
 	})
 	if err != nil {
 		log.Printf("error getting recipes %v", err)
