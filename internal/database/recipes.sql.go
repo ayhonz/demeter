@@ -68,10 +68,17 @@ func (q *Queries) GetRecipeByID(ctx context.Context, id uuid.UUID) (Recipe, erro
 
 const getRecipes = `-- name: GetRecipes :many
 SELECT id, created_at, updated_at, title, description, user_id FROM recipes
+LIMIT $1
+OFFSET $2
 `
 
-func (q *Queries) GetRecipes(ctx context.Context) ([]Recipe, error) {
-	rows, err := q.db.QueryContext(ctx, getRecipes)
+type GetRecipesParams struct {
+	Limit  int32
+	Offset int32
+}
+
+func (q *Queries) GetRecipes(ctx context.Context, arg GetRecipesParams) ([]Recipe, error) {
+	rows, err := q.db.QueryContext(ctx, getRecipes, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}

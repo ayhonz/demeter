@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/ayhonz/racook/internal/database"
@@ -95,9 +96,25 @@ func (c *CookBookServer) getRecipeByIDHandler(w http.ResponseWriter, r *http.Req
 }
 
 func (c *CookBookServer) getRecipes(w http.ResponseWriter, r *http.Request) {
-	recipes, err := c.store.GetRecipes(r.Context())
+	limitStr := r.URL.Query().Get("limit")
+	var limit int32 = 10
+	if limitStr != "" {
+		var err error
+		limits, err := strconv.ParseInt(limitStr, 10, 32)
+		limit = int32(limits)
+		if err != nil {
+			responseWithError(w, 400, fmt.Sprint("Invalid limit"))
+			return
+		}
+	}
+
+	recipes, err := c.store.GetRecipes(r.Context(), database.GetRecipesParams{
+		Limit:  limit,
+		Offset: 0,
+	})
 	if err != nil {
 		log.Printf("error getting recipes %v", err)
+		// probably we should return 422 or something
 		responseWithError(w, 404, fmt.Sprint("Recipes not found"))
 		return
 	}

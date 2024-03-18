@@ -14,7 +14,7 @@ type Querier interface {
 	CreateRecipe(ctx context.Context, arg CreateRecipeParams) (Recipe, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	GetRecipeByID(ctx context.Context, id uuid.UUID) (Recipe, error)
-	GetRecipes(ctx context.Context) ([]Recipe, error)
+	GetRecipes(ctx context.Context, arg GetRecipesParams) ([]Recipe, error)
 	GetUserByID(ctx context.Context, id uuid.UUID) (User, error)
 }
 

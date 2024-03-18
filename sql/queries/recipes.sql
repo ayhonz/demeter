@@ -4,7 +4,9 @@ VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING *;
 
 -- name: GetRecipes :many
-SELECT * FROM recipes;
+SELECT * FROM recipes
+LIMIT $1
+OFFSET $2;
 
 -- name: GetRecipeByID :one
 SELECT * FROM recipes WHERE id = $1;
