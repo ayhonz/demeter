@@ -5,10 +5,17 @@ can be found and recorded!
 
 ## Functionality
 
-- [] Able see list of recipes
-- [] filter by category, name cooking time etc.
-- [] find recipe by name and id
-- [] record recipes
+- [x] Able see list of recipes
+  - [] list has total count
+  - [] pagination
+  - [] list accept filter
+- [] filter
+  - [] by category
+  - [] by ingidience
+  - [] by type?
+  - [] cooking time
+- [x] find recipe and id
+- [x] record recipes
 - [] able to register/login as a user
 - [] mark recipe as favorite
 - [] like/dislike a recipe
