@@ -3,7 +3,6 @@ package cookbook
 import (
 	"time"
 
-	"github.com/ayhonz/racook/internal/database"
 	"github.com/google/uuid"
 )
 
@@ -22,9 +21,10 @@ type Recipe struct {
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
 	UserID      uuid.UUID `json:"user_id"`
+	Categories  []string  `json:"categories"`
 }
 
-func databaseUserToUser(dbUser database.User) User {
+func databaseUserToUser(dbUser DBUser) User {
 	return User{
 		ID:        dbUser.ID,
 		CreatedAt: dbUser.CreatedAt,
@@ -34,7 +34,7 @@ func databaseUserToUser(dbUser database.User) User {
 	}
 }
 
-func databaseRecipeToRecipe(dbRecipe database.Recipe) Recipe {
+func databaseRecipeToRecipe(dbRecipe DBRecipe) Recipe {
 	return Recipe{
 		ID:          dbRecipe.ID,
 		CreatedAt:   dbRecipe.CreatedAt,
@@ -42,5 +42,6 @@ func databaseRecipeToRecipe(dbRecipe database.Recipe) Recipe {
 		Description: dbRecipe.Description,
 		Title:       dbRecipe.Title,
 		UserID:      dbRecipe.UserID,
+		Categories:  dbRecipe.Categories,
 	}
 }

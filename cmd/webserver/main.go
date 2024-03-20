@@ -1,13 +1,13 @@
 package main
 
 import (
-	"database/sql"
 	"flag"
 	"log"
 	"net/http"
 
 	"github.com/ayhonz/racook"
 	"github.com/ayhonz/racook/internal/database"
+	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 )
 
@@ -17,20 +17,20 @@ func main() {
 
 	flag.Parse()
 
-	conn, err := sql.Open("postgres", *dbURL)
+	db, err := sqlx.Open("postgres", *dbURL)
 	if err != nil {
 		log.Fatalf("unable to connect to database %v", err)
 	}
-	defer conn.Close()
+	defer db.Close()
 
-	err = conn.Ping()
+	err = db.Ping()
 	if err != nil {
 		log.Fatalf("unable to ping database %v", err)
 	}
 
-	queries := database.New(conn)
+	storage := database.NewStorage(db)
 
-	server := cookbook.NewCookBookServer(queries)
+	server := cookbook.NewCookBookServer(storage)
 
 	log.Println("Starting server on", *addr)
 	if err := http.ListenAndServe(*addr, server); err != nil {

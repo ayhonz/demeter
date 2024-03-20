@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/ayhonz/racook/internal/database"
@@ -15,12 +15,19 @@ import (
 
 const jsonContentType = "application/json"
 
+type CookBookStorage interface {
+	CreateUser(user database.CreateUserParams) (database.DBUser, error)
+	CreateRecipe(recipe database.CreateRecipeParams) (database.DBRecipe, error)
+	GetRecipeByID(id uuid.UUID) (database.DBRecipe, error)
+	GetRecipes() ([]database.DBRecipe, error)
+}
+
 type CookBookServer struct {
-	store database.Querier
+	store CookBookStorage
 	http.Handler
 }
 
-func NewCookBookServer(store database.Querier) *CookBookServer {
+func NewCookBookServer(store CookBookStorage) *CookBookServer {
 	server := new(CookBookServer)
 
 	server.store = store
@@ -59,18 +66,19 @@ func (c *CookBookServer) createRecipeHandler(w http.ResponseWriter, r *http.Requ
 		responseWithError(w, 400, fmt.Sprintf("error parsing JSON %v", err))
 	}
 
-	userId, _ := uuid.Parse("68f4db84-355e-431f-b7b1-cf4688946e14")
+	userId, _ := uuid.Parse("958db18c-6f40-43f1-95b1-a0a29b47362f")
 
-	recipe, err := c.store.CreateRecipe(r.Context(), database.CreateRecipeParams{
+	recipe, err := c.store.CreateRecipe(database.CreateRecipeParams{
 		ID:          uuid.New(),
 		Title:       params.Title,
 		Description: params.Description,
 		UpdatedAt:   time.Now().UTC(),
 		CreatedAt:   time.Now().UTC(),
+		Categories:  []string{"test"},
 		UserID:      userId,
 	})
 	if err != nil {
-		responseWithError(w, 400, fmt.Sprintf("Could't create user %v", err))
+		responseWithError(w, 400, fmt.Sprintf("Could't create recipe %v", err))
 		return
 	}
 
@@ -86,7 +94,7 @@ func (c *CookBookServer) getRecipeByIDHandler(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	recipe, err := c.store.GetRecipeByID(r.Context(), recipeID)
+	recipe, err := c.store.GetRecipeByID(recipeID)
 	if err != nil {
 		responseWithError(w, 404, "Recipe not found")
 		return
@@ -96,33 +104,30 @@ func (c *CookBookServer) getRecipeByIDHandler(w http.ResponseWriter, r *http.Req
 }
 
 func (c *CookBookServer) getRecipes(w http.ResponseWriter, r *http.Request) {
-	limitStr := r.URL.Query().Get("limit")
-	offsetStr := r.URL.Query().Get("offset")
-	var limit int32 = 10
-	var offset int32 = 0
-	if limitStr != "" {
-		var err error
-		limitInt, err := strconv.ParseInt(limitStr, 10, 32)
-		limit = int32(limitInt)
-		if err != nil {
-			responseWithError(w, 400, fmt.Sprint("Invalid limit"))
-			return
-		}
-	}
-	if offsetStr != "" {
-		var err error
-		offsetInt, err := strconv.ParseInt(offsetStr, 10, 32)
-		offset = int32(offsetInt)
-		if err != nil {
-			responseWithError(w, 400, fmt.Sprint("Invalid offset"))
-			return
-		}
-	}
-
-	recipes, err := c.store.GetRecipes(r.Context(), database.GetRecipesParams{
-		Limit:  limit,
-		Offset: offset,
-	})
+	// limitStr := r.URL.Query().Get("limit")
+	// offsetStr := r.URL.Query().Get("offset")
+	// var limit int32 = 10
+	// var offset int32 = 0
+	// if limitStr != "" {
+	// 	var err error
+	// 	limitInt, err := strconv.ParseInt(limitStr, 10, 32)
+	// 	limit = int32(limitInt)
+	// 	if err != nil {
+	// 		responseWithError(w, 400, fmt.Sprint("Invalid limit"))
+	// 		return
+	// 	}
+	// }
+	// if offsetStr != "" {
+	// 	var err error
+	// 	offsetInt, err := strconv.ParseInt(offsetStr, 10, 32)
+	// 	offset = int32(offsetInt)
+	// 	if err != nil {
+	// 		responseWithError(w, 400, fmt.Sprint("Invalid offset"))
+	// 		return
+	// 	}
+	// }
+	//
+	recipes, err := c.store.GetRecipes()
 	if err != nil {
 		log.Printf("error getting recipes %v", err)
 		// probably we should return 422 or something
@@ -149,14 +154,13 @@ func (c *CookBookServer) createUserHandler(w http.ResponseWriter, r *http.Reques
 	if err != nil {
 		responseWithError(w, 400, fmt.Sprintf("error parsing JSON %v", err))
 	}
-	user, err := c.store.CreateUser(r.Context(), database.CreateUserParams{
+	user, err := c.store.CreateUser(database.CreateUserParams{
 		ID:        uuid.New(),
 		FirstName: params.FirstName,
 		LastName:  params.LastName,
 		CreatedAt: time.Now().UTC(),
 		UpdatedAt: time.Now().UTC(),
 	})
-
 	if err != nil {
 		responseWithError(w, 400, fmt.Sprintf("Could't create user %v", err))
 		return

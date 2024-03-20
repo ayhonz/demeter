@@ -7,7 +7,7 @@ can be found and recorded!
 
 - [x] Able see list of recipes
   - [ ] list has total count
-  - [ ] pagination
+  - [x] pagination
   - [ ] list accept filter
 - [ ] filter
   - [ ] by category
