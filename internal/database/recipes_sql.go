@@ -3,40 +3,47 @@ package database
 import (
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/lib/pq"
 )
 
+type Recipe struct {
+	ID          int
+	CreatedAt   time.Time      `db:"created_at"`
+	UpdatedAt   time.Time      `db:"updated_at"`
+	Title       string         `db:"title"`
+	Description string         `db:"description"`
+	Categories  pq.StringArray `db:"categories"`
+	UserID      int            `db:"user_id"`
+}
+
 type CreateRecipeParams struct {
-	ID          uuid.UUID
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 	Title       string
 	Description string
 	Categories  pq.StringArray
-	UserID      uuid.UUID
+	UserID      int
 }
 
-func (s *Storage) GetRecipeByID(id uuid.UUID) (DBRecipe, error) {
-	var recipe DBRecipe
+func (s *Storage) GetRecipeByID(id int) (Recipe, error) {
+	var recipe Recipe
 	err := s.DB.Get(&recipe, "SELECT * FROM recipes WHERE id = $1", id)
 
 	return recipe, err
 }
 
-func (s *Storage) GetRecipes() ([]DBRecipe, error) {
-	var recipes []DBRecipe
+func (s *Storage) GetRecipes() ([]Recipe, error) {
+	var recipes []Recipe
 	err := s.DB.Select(&recipes, "SELECT * FROM recipes")
 	return recipes, err
 }
 
-func (s *Storage) CreateRecipe(recipeParams CreateRecipeParams) (DBRecipe, error) {
-	stmt := "INSERT INTO recipes (id, title, description, created_at, updated_at, categories, user_id) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *"
-	var recipe DBRecipe
+func (s *Storage) CreateRecipe(recipeParams CreateRecipeParams) (Recipe, error) {
+	stmt := "INSERT INTO recipes (title, description, created_at, updated_at, categories, user_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *"
+	var recipe Recipe
 	err := s.DB.Get(
 		&recipe,
 		stmt,
-		recipeParams.ID,
 		recipeParams.Title,
 		recipeParams.Description,
 		recipeParams.CreatedAt,
@@ -45,7 +52,7 @@ func (s *Storage) CreateRecipe(recipeParams CreateRecipeParams) (DBRecipe, error
 		recipeParams.UserID,
 	)
 	if err != nil {
-		return DBRecipe{}, err
+		return Recipe{}, err
 	}
 
 	return recipe, nil
