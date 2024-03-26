@@ -12,6 +12,7 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/ayhonz/racook/internal/database"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 )
 
 const jsonContentType = "application/json"
@@ -39,11 +40,16 @@ func NewCookBookServer(store CookBookStorage, sessionManager *scs.SessionManager
 	router := chi.NewRouter()
 
 	v1Router := chi.NewRouter()
+
+	v1Router.Use(middleware.Logger)
+	v1Router.Use(middleware.Recoverer)
 	v1Router.Use(server.sessionManager.LoadAndSave)
+
 	router.Mount("/v1", v1Router)
 
 	v1Router.Get("/healthz", server.healthHandler)
 
+	v1Router.Get("/recipes", server.getRecipesHandler)
 	v1Router.Get("/recipes/{id}", server.getRecipeByIDHandler)
 
 	v1Router.Post("/users/register", server.createUserHandler)
@@ -151,7 +157,7 @@ func (c *CookBookServer) getRecipeByIDHandler(w http.ResponseWriter, r *http.Req
 	responseWithJSON(w, 200, databaseRecipeToRecipe(recipe))
 }
 
-func (c *CookBookServer) getRecipes(w http.ResponseWriter, r *http.Request) {
+func (c *CookBookServer) getRecipesHandler(w http.ResponseWriter, r *http.Request) {
 	// limitStr := r.URL.Query().Get("limit")
 	// offsetStr := r.URL.Query().Get("offset")
 	// var limit int32 = 10
