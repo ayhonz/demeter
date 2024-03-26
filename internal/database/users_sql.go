@@ -49,3 +49,20 @@ func (s *Storage) CreateUser(userParams CreateUserParams) (User, error) {
 
 	return user, nil
 }
+
+func (s *Storage) Authenticate(email string, password string) (int, error) {
+	var id int
+	var hashedPassword []byte
+
+	err := s.DB.QueryRow("SELECT id, hashed_password FROM users WHERE email = $1", email).Scan(&id, &hashedPassword)
+	if err != nil {
+		return 0, err
+	}
+
+	err = bcrypt.CompareHashAndPassword(hashedPassword, []byte(password))
+	if err != nil {
+		return 0, err
+	}
+
+	return id, nil
+}

@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/alexedwards/scs/v2"
 	"github.com/ayhonz/racook/internal/database"
 	"github.com/go-chi/chi/v5"
 )
@@ -20,34 +21,88 @@ type CookBookStorage interface {
 	CreateRecipe(recipe database.CreateRecipeParams) (database.Recipe, error)
 	GetRecipeByID(id int) (database.Recipe, error)
 	GetRecipes() ([]database.Recipe, error)
+	Authenticate(email string, password string) (int, error)
 }
 
 type CookBookServer struct {
-	store CookBookStorage
+	store          CookBookStorage
+	sessionManager *scs.SessionManager
 	http.Handler
 }
 
-func NewCookBookServer(store CookBookStorage) *CookBookServer {
+func NewCookBookServer(store CookBookStorage, sessionManager *scs.SessionManager) *CookBookServer {
 	server := new(CookBookServer)
 
 	server.store = store
+	server.sessionManager = sessionManager
 
 	router := chi.NewRouter()
 
 	v1Router := chi.NewRouter()
+	v1Router.Use(server.sessionManager.LoadAndSave)
 	router.Mount("/v1", v1Router)
 
 	v1Router.Get("/healthz", server.healthHandler)
 
-	v1Router.Post("/recipes", server.createRecipeHandler)
-	v1Router.Get("/recipes", server.getRecipes)
 	v1Router.Get("/recipes/{id}", server.getRecipeByIDHandler)
 
 	v1Router.Post("/users/register", server.createUserHandler)
+	v1Router.Post("/users/login", server.userLoginHandler)
+
+	v1Router.Group(func(r chi.Router) {
+		r.Use(server.requireAuthentication)
+
+		r.Post("/recipes", server.createRecipeHandler)
+		r.Post("/users/logout", server.userLogoutHandler)
+	})
 
 	server.Handler = router
 
 	return server
+}
+
+func (c *CookBookServer) userLoginHandler(w http.ResponseWriter, r *http.Request) {
+	type parameters struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+
+	params := new(parameters)
+	err := json.NewDecoder(r.Body).Decode(params)
+	if err != nil {
+		responseWithError(w, 400, fmt.Sprintf("error parsing JSON %v", err))
+	}
+
+	id, err := c.store.Authenticate(params.Email, params.Password)
+	if err != nil {
+		responseWithError(w, 401, fmt.Sprintf("error authenticating user %v", err))
+		return
+	}
+
+	err = c.sessionManager.RenewToken(r.Context())
+	if err != nil {
+		responseWithError(w, 500, fmt.Sprintf("error renewing session token %v", err))
+		return
+	}
+
+	c.sessionManager.Put(r.Context(), "authenticatedUserID", id)
+
+	responseWithJSON(w, 200, "OK")
+}
+
+func (c *CookBookServer) userLogoutHandler(w http.ResponseWriter, r *http.Request) {
+	err := c.sessionManager.RenewToken(r.Context())
+	if err != nil {
+		responseWithError(w, 500, fmt.Sprintf("error renewing session token %v", err))
+		return
+	}
+
+	c.sessionManager.Remove(r.Context(), "authenticatedUserID")
+	responseWithJSON(w, 200, "OK")
+}
+
+func (c *CookBookServer) isAuthenticated(r *http.Request) bool {
+	return c.sessionManager.Exists(r.Context(), "authenticatedUserID")
 }
 
 func (c *CookBookServer) healthHandler(w http.ResponseWriter, r *http.Request) {

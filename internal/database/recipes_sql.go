@@ -7,13 +7,14 @@ import (
 )
 
 type Recipe struct {
-	ID          int
-	CreatedAt   time.Time      `db:"created_at"`
-	UpdatedAt   time.Time      `db:"updated_at"`
-	Title       string         `db:"title"`
-	Description string         `db:"description"`
-	Categories  pq.StringArray `db:"categories"`
-	UserID      int            `db:"user_id"`
+	ID           int
+	CreatedAt    time.Time      `db:"created_at"`
+	UpdatedAt    time.Time      `db:"updated_at"`
+	Title        string         `db:"title"`
+	Description  string         `db:"description"`
+	Categories   pq.StringArray `db:"categories"`
+	Ingerediants pq.StringArray `db:"ingerediants"`
+	UserID       int            `db:"user_id"`
 }
 
 type CreateRecipeParams struct {
@@ -39,7 +40,7 @@ func (s *Storage) GetRecipes() ([]Recipe, error) {
 }
 
 func (s *Storage) CreateRecipe(recipeParams CreateRecipeParams) (Recipe, error) {
-	stmt := "INSERT INTO recipes (title, description, created_at, updated_at, categories, user_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *"
+	stmt := "INSERT INTO recipes (title, description, created_at, updated_at, categories, user_id) VALUES ($2, $2, $3, $4, $5, $6) RETURNING *"
 	var recipe Recipe
 	err := s.DB.Get(
 		&recipe,

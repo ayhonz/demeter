@@ -6,7 +6,7 @@ CREATE TABLE recipes (
     updated_at TIMESTAMP NOT NULL,
     title TEXT NOT NULL,
     description TEXT NOT NULL,
-    category TEXT[],
+    categories TEXT[],
     ingerediants TEXT[],
     user_id SERIAL NOT NULL REFERENCES users(id) ON DELETE CASCADE
 );

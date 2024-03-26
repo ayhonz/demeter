@@ -1,10 +1,14 @@
 package main
 
 import (
+	"database/sql"
 	"flag"
 	"log"
 	"net/http"
+	"time"
 
+	"github.com/alexedwards/scs/postgresstore"
+	"github.com/alexedwards/scs/v2"
 	"github.com/ayhonz/racook"
 	"github.com/ayhonz/racook/internal/database"
 	"github.com/jmoiron/sqlx"
@@ -17,11 +21,13 @@ func main() {
 
 	flag.Parse()
 
-	db, err := sqlx.Open("postgres", *dbURL)
+	postgres, err := sql.Open("postgres", *dbURL)
 	if err != nil {
 		log.Fatalf("unable to connect to database %v", err)
 	}
-	defer db.Close()
+	defer postgres.Close()
+
+	db := sqlx.NewDb(postgres, "postgres")
 
 	err = db.Ping()
 	if err != nil {
@@ -29,8 +35,11 @@ func main() {
 	}
 
 	storage := database.NewStorage(db)
+	sessionManager := scs.New()
+	sessionManager.Store = postgresstore.New(postgres)
+	sessionManager.Lifetime = 12 * time.Hour
 
-	server := cookbook.NewCookBookServer(storage)
+	server := cookbook.NewCookBookServer(storage, sessionManager)
 
 	log.Println("Starting server on", *addr)
 	if err := http.ListenAndServe(*addr, server); err != nil {
