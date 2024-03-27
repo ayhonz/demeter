@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"database/sql"
 	"flag"
 	"log"
@@ -41,8 +42,18 @@ func main() {
 
 	server := cookbook.NewCookBookServer(storage, sessionManager)
 
+	tlsConfig := &tls.Config{
+		CurvePreferences: []tls.CurveID{tls.X25519, tls.CurveP256},
+	}
+
+	serv := &http.Server{
+		Addr:      *addr,
+		Handler:   server,
+		TLSConfig: tlsConfig,
+	}
+
 	log.Println("Starting server on", *addr)
-	if err := http.ListenAndServe(*addr, server); err != nil {
+	if err := serv.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem"); err != nil {
 		log.Fatalf("could not listen on port %s %v", *addr, err)
 	}
 }
