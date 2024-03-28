@@ -5,17 +5,67 @@ can be found and recorded!
 
 ## Functionality
 
-- [x] Able see list of recipes
+- [ ] Able see list of recipes
   - [ ] list has total count
-  - [x] pagination
+  - [ ] pagination
   - [ ] list accept filter
 - [ ] filter
   - [ ] by category
   - [ ] by ingidience
   - [ ] by type?
   - [ ] cooking time
-- [x] find recipe and id
-- [x] record recipes
+- [ ] find recipe and id
+- [ ] record recipes
 - [ ] able to register/login as a user
 - [ ] mark recipe as favorite
 - [ ] like/dislike a recipe
+
+## MakeFile
+
+run all make commands with clean tests
+
+```bash
+make all build
+```
+
+build the application
+
+```bash
+make build
+```
+
+run the application
+
+```bash
+make run
+```
+
+Create DB container
+
+```bash
+make docker-run
+```
+
+Shutdown DB container
+
+```bash
+make docker-down
+```
+
+live reload the application
+
+```bash
+make watch
+```
+
+run the test suite
+
+```bash
+make test
+```
+
+clean up binary from the last build
+
+```bash
+make clean
+```
