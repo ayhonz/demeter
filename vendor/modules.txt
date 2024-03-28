@@ -1,12 +1,19 @@
 # github.com/a-h/templ v0.2.648
 ## explicit; go 1.21
+github.com/a-h/templ
+github.com/a-h/templ/safehtml
+# github.com/golang-jwt/jwt v3.2.2+incompatible
+## explicit
+github.com/golang-jwt/jwt
 # github.com/jmoiron/sqlx v1.3.5
 ## explicit; go 1.10
 # github.com/labstack/echo/v4 v4.11.4
 ## explicit; go 1.18
 github.com/labstack/echo/v4
+github.com/labstack/echo/v4/middleware
 # github.com/labstack/gommon v0.4.2
 ## explicit; go 1.18
+github.com/labstack/gommon/bytes
 github.com/labstack/gommon/color
 github.com/labstack/gommon/log
 # github.com/lib/pq v1.10.9
@@ -43,3 +50,6 @@ golang.org/x/text/secure/bidirule
 golang.org/x/text/transform
 golang.org/x/text/unicode/bidi
 golang.org/x/text/unicode/norm
+# golang.org/x/time v0.5.0
+## explicit; go 1.18
+golang.org/x/time/rate
