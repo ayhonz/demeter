@@ -1,0 +1,19 @@
+package page
+
+import "racook/views/layout"
+
+templ Home(count string) {
+	@layout.Base() {
+		<div>
+			<h1>Home</h1>
+			<p>Welcome to the Home page.</p>
+			@Counter(count)
+		</div>
+	}
+}
+
+templ Counter(counter string) {
+	<div id="counter">
+		{ counter } <button type="button" hx-target="#counter" hx-post="/couter">CLICK ME</button>
+	</div>
+}
