@@ -1,3 +1,5 @@
+include .env
+
 all: build
 
 build:
@@ -7,7 +9,7 @@ build:
 
 # Run the application
 run:
-	@go run cmd/api/main.go
+	@go run cmd/api/main.go; -addr=:${PORT} -dbUrl=${DB_URL}
 
 # Create DB container
 docker-run:
@@ -50,6 +52,38 @@ watch:
 	        echo "Watching...";\
 	    else \
 	        echo "You chose not to install air. Exiting..."; \
+	        exit 1; \
+	    fi; \
+	fi
+
+
+# Run the migrations
+migration-up:
+	@if command -v goose > /dev/null; then \
+	    goose -dir internal/database/schema postgres postgres://example:example@localhost:5432/racook up; \
+	else \
+	    read -p "Go's 'goose' is not installed on your machine. Do you want to install it? [Y/n] " choice; \
+	    if [ "$$choice" != "n" ] && [ "$$choice" != "N" ]; then \
+			go install github.com/pressly/goose/v3/cmd/goose@latest; \
+	    	goose -dir internal/database/schema postgres postgres://example:example@localhost:5432/racook up; \
+	    else \
+	        echo "You chose not to install goose. Exiting..."; \
+	        exit 1; \
+	    fi; \
+	fi
+
+
+# RUN Rollback of migrations
+migration-down:
+	@if command -v goose > /dev/null; then \
+	    goose -dir internal/database/schema postgres postgres://example:example@localhost:5432/racook down; \
+	else \
+	    read -p "Go's 'goose' is not installed on your machine. Do you want to install it? [Y/n] " choice; \
+	    if [ "$$choice" != "n" ] && [ "$$choice" != "N" ]; then \
+			go install github.com/pressly/goose/v3/cmd/goose@latest; \
+	    	goose -dir internal/database/schema postgres postgres://example:example@localhost:5432/racook down; \
+	    else \
+	        echo "You chose not to install goose. Exiting..."; \
 	        exit 1; \
 	    fi; \
 	fi

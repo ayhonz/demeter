@@ -40,6 +40,18 @@ run the application
 make run
 ```
 
+migrations up
+
+```bash
+make migrations-up
+```
+
+migrations down
+
+```bash
+make migrations-down
+```
+
 Create DB container
 
 ```bash
