@@ -5,11 +5,12 @@ all: build
 build:
 	@echo "Building..."
 	@templ generate
-	@go build -o main cmd/webserver/main.go
+	@go build -o main cmd/webserver/main.go -addr=:${PORT} -dbUrl=${DB_URL}
+
 
 # Run the application
 run:
-	@go run cmd/api/main.go; -addr=:${PORT} -dbUrl=${DB_URL}
+	@go run cmd/webserver/main.go -addr=:${PORT} -dbUrl=${DB_URL}
 
 # Create DB container
 docker-run:

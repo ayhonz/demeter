@@ -1,41 +1,36 @@
 package main
 
 import (
-	"racook/views/page"
-	"strconv"
+	"flag"
+	"fmt"
+	"log"
+	"net/http"
+	"racook/internal/database"
+	"racook/internal/models"
+	"racook/internal/server"
 
-	"github.com/a-h/templ"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	_ "github.com/lib/pq"
 )
 
-func Render(ctx echo.Context, statusCode int, t templ.Component) error {
-	ctx.Response().Writer.WriteHeader(statusCode)
-	ctx.Response().Header().Set(echo.HeaderContentType, echo.MIMETextHTML)
-	return t.Render(ctx.Request().Context(), ctx.Response().Writer)
-}
-
-var counter int = 0
-
 func main() {
-	e := echo.New()
-	e.Use()
-	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
-		Format: "method=${method}, uri=${uri}, status=${status}, took=${latency_human}, error=${error}\n",
-	}))
+	addr := flag.String("addr", ":4000", "HTTP network address")
+	dbURL := flag.String("dbUrl", "postgres://example:example@localhost:5432/racook?sslmode=disable", "database url")
 
-	e.Static("/static", "assets")
+	flag.Parse()
 
-	e.GET("/", func(c echo.Context) error {
-		return Render(c, 200, page.Home("0"))
-	})
+	db, err := database.NewDatabaseConnection(*dbURL)
+	if err != nil {
+		panic(fmt.Sprintf("cannot start server: %s", err))
+	}
+	defer db.Close()
 
-	e.POST("/couter", func(c echo.Context) error {
-		counter++
-		strCounter := strconv.Itoa(counter)
+	app := &server.Application{
+		Recipes: &models.RecipeModel{DB: db},
+	}
 
-		return Render(c, 200, page.Counter(strCounter))
-	})
-
-	e.Logger.Fatal(e.Start(":6969"))
+	log.Printf("Server is running on %s...", *addr)
+	err = http.ListenAndServe(*addr, app.Routes())
+	if err != nil {
+		panic(fmt.Sprintf("cannot start server: %s", err))
+	}
 }

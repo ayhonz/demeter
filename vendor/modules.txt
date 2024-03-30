@@ -7,6 +7,8 @@ github.com/a-h/templ/safehtml
 github.com/golang-jwt/jwt
 # github.com/jmoiron/sqlx v1.3.5
 ## explicit; go 1.10
+github.com/jmoiron/sqlx
+github.com/jmoiron/sqlx/reflectx
 # github.com/labstack/echo/v4 v4.11.4
 ## explicit; go 1.18
 github.com/labstack/echo/v4
@@ -18,6 +20,9 @@ github.com/labstack/gommon/color
 github.com/labstack/gommon/log
 # github.com/lib/pq v1.10.9
 ## explicit; go 1.13
+github.com/lib/pq
+github.com/lib/pq/oid
+github.com/lib/pq/scram
 # github.com/mattn/go-colorable v0.1.13
 ## explicit; go 1.15
 github.com/mattn/go-colorable
