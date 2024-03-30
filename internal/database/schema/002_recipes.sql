@@ -7,8 +7,8 @@ CREATE TABLE recipes (
     title TEXT NOT NULL,
     description TEXT NOT NULL,
     categories TEXT[],
-    ingerediants TEXT[],
-    user_id SERIAL NOT NULL REFERENCES users(id) ON DELETE CASCADE
+    ingredients TEXT[],
+    user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- +goose Down

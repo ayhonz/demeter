@@ -42,6 +42,20 @@ func (app *Application) Routes() http.Handler {
 
 		return Render(c, 200, page.Counter(strCounter))
 	})
+	e.POST("/recipes", func(c echo.Context) error {
+		title := "test"
+		description := "description"
+		ingredients := []string{"ingredients"}
+		categories := []string{"categories"}
+
+		id, err := app.Recipes.Insert(title, description, ingredients, categories)
+		if err != nil {
+			return err
+		}
+
+		return c.JSON(200, id)
+
+	})
 
 	return e
 }
