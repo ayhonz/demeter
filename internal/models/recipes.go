@@ -8,14 +8,14 @@ import (
 )
 
 type Recipe struct {
-	ID          int
-	Title       string
-	Description string
-	Ingredients []string
-	Categories  []string
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
-	userID      int
+	ID          int            `db:"id"`
+	Title       string         `db:"title"`
+	Description string         `db:"description"`
+	Ingredients pq.StringArray `db:"ingredients"`
+	Categories  pq.StringArray `db:"categories"`
+	CreatedAt   time.Time      `db:"created_at"`
+	UpdatedAt   time.Time      `db:"updated_at"`
+	UserID      int            `db:"user_id"`
 }
 
 type RecipeModel struct {
@@ -37,8 +37,15 @@ RETURNING id;`
 
 }
 
-func (m *RecipeModel) Get(id int) (Recipe, error) {
-	return Recipe{}, nil
+func (m *RecipeModel) Get(id string) (Recipe, error) {
+	stmt := `SELECT * FROM recipes WHERE id=$1;`
+	var recipe Recipe
+	err := m.DB.Get(&recipe, stmt, id)
+	if err != nil {
+		return Recipe{}, err
+	}
+
+	return recipe, nil
 }
 
 func (m *RecipeModel) List() ([]Recipe, error) {

@@ -1,0 +1,24 @@
+package page 
+
+import "racook/views/layout"
+import "racook/internal/models"
+import "time"
+
+templ Detail(recipe models.Recipe) {
+	@layout.Base() {
+		<div>
+			<h1>Home</h1>
+			<p>Welcome to the detail page.</p>
+			{ recipe.Title }
+			{ recipe.Description }
+			for _, category := range recipe.Categories {
+				<li>{ category }</li>
+			}
+			for _, ingredient := range recipe.Ingredients {
+				<li>{ ingredient }</li>
+			}
+			{ recipe.CreatedAt.Format(time.DateOnly) }
+			{ recipe.UpdatedAt.Format(time.DateOnly) }
+		</div>
+	}
+}

@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"net/http"
 	"racook/internal/models"
 	"racook/views/page"
@@ -53,8 +54,17 @@ func (app *Application) Routes() http.Handler {
 			return err
 		}
 
-		return c.JSON(200, id)
+		return c.Redirect(http.StatusSeeOther, fmt.Sprintf("/recipes/%d", id))
+	})
+	e.GET("/recipes/:id", func(c echo.Context) error {
+		id := c.Param("id")
 
+		recipe, err := app.Recipes.Get(id)
+		if err != nil {
+			return err
+		}
+
+		return Render(c, 200, page.Detail(recipe))
 	})
 
 	return e
