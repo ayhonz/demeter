@@ -49,5 +49,11 @@ func (m *RecipeModel) Get(id string) (Recipe, error) {
 }
 
 func (m *RecipeModel) List() ([]Recipe, error) {
-	return []Recipe{}, nil
+	stmt := `SELECT * FROM recipes;`
+	var recipes []Recipe
+	err := m.DB.Select(&recipes, stmt)
+	if err != nil {
+		return nil, err
+	}
+	return recipes, nil
 }

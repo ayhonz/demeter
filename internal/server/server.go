@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"racook/internal/models"
 	"racook/views/page"
-	"strconv"
 
 	"github.com/a-h/templ"
 	"github.com/labstack/echo/v4"
@@ -17,6 +16,13 @@ type Application struct {
 }
 
 var counter int = 0
+
+type RecipeForm struct {
+	Title       string   `form:"title"`
+	Description string   `form:"description"`
+	Categories  []string `form:"categories[]"`
+	Ingredients []string `form:"ingredients[]"`
+}
 
 func Render(ctx echo.Context, statusCode int, t templ.Component) error {
 	ctx.Response().Writer.WriteHeader(statusCode)
@@ -33,28 +39,31 @@ func (app *Application) Routes() http.Handler {
 	e.Static("/static", "assets")
 
 	e.GET("/", func(c echo.Context) error {
-		strCounter := strconv.Itoa(counter)
-		return Render(c, 200, page.Home(strCounter))
-	})
 
-	e.POST("/couter", func(c echo.Context) error {
-		counter++
-		strCounter := strconv.Itoa(counter)
-
-		return Render(c, 200, page.Counter(strCounter))
-	})
-	e.POST("/recipes", func(c echo.Context) error {
-		title := "test"
-		description := "description"
-		ingredients := []string{"ingredients"}
-		categories := []string{"categories"}
-
-		id, err := app.Recipes.Insert(title, description, ingredients, categories)
+		recipe, err := app.Recipes.List()
 		if err != nil {
 			return err
 		}
 
-		return c.Redirect(http.StatusSeeOther, fmt.Sprintf("/recipes/%d", id))
+		return Render(c, 200, page.Home(recipe))
+	})
+
+	e.GET("/recipes/create", func(c echo.Context) error {
+		return Render(c, 200, page.CreateRecipe())
+	})
+
+	e.POST("/recipes", func(c echo.Context) error {
+		var recipe RecipeForm
+		err := c.Bind(&recipe)
+
+		id, err := app.Recipes.Insert(recipe.Title, recipe.Description, recipe.Ingredients, recipe.Categories)
+		if err != nil {
+			return err
+		}
+
+		// Is this redirect correct? :?
+		c.Response().Header().Set("HX-Redirect", fmt.Sprintf("/recipes/%d", id))
+		return c.String(http.StatusAccepted, "Created")
 	})
 	e.GET("/recipes/:id", func(c echo.Context) error {
 		id := c.Param("id")

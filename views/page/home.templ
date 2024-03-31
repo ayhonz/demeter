@@ -1,19 +1,28 @@
 package page
 
 import "racook/views/layout"
+import "racook/internal/models"
+import "time"
 
-templ Home(count string) {
+templ Home(recipes []models.Recipe) {
 	@layout.Base() {
 		<div>
 			<h1>Home</h1>
 			<p>Welcome to the Home page.</p>
-			@Counter(count)
+			<div>
+				for _, recipe := range recipes {
+					{ recipe.Title }
+					{ recipe.Description }
+					for _, category := range recipe.Categories {
+						<li>{ category }</li>
+					}
+					for _, ingredient := range recipe.Ingredients {
+						<li>{ ingredient }</li>
+					}
+					{ recipe.CreatedAt.Format(time.DateOnly) }
+					{ recipe.UpdatedAt.Format(time.DateOnly) }
+				}
+			</div>
 		</div>
 	}
-}
-
-templ Counter(counter string) {
-	<div id="counter">
-		{ counter } <button type="button" hx-target="#counter" hx-post="/couter">CLICK ME</button>
-	</div>
 }
