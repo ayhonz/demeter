@@ -1,5 +1,7 @@
 package layout
 
+import "racook/views/partials"
+
 templ Base() {
 	<!DOCTYPE html>
 	<html lang="en" data-theme="dark">
@@ -20,6 +22,7 @@ templ Base() {
 			<title>RACOOK</title>
 		</head>
 		<body>
+			@partials.Navbar()
 			{ children... }
 		</body>
 	</html>
