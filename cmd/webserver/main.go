@@ -18,14 +18,15 @@ func main() {
 
 	flag.Parse()
 
-	db, err := database.NewDatabaseConnection(*dbURL)
+	connection, err := database.NewDatabaseConnection(*dbURL)
 	if err != nil {
 		panic(fmt.Sprintf("cannot start server: %s", err))
 	}
-	defer db.Close()
+	defer connection.Db.Close()
 
 	app := &server.Application{
-		Recipes: &models.RecipeModel{DB: db},
+		Recipes:        &models.RecipeModel{DB: connection.Db},
+		SessionManager: connection.SessionManager,
 	}
 
 	log.Printf("Server is running on %s...", *addr)

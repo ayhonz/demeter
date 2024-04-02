@@ -7,12 +7,14 @@ import (
 	"racook/views/page"
 
 	"github.com/a-h/templ"
+	"github.com/alexedwards/scs/v2"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
 type Application struct {
-	Recipes *models.RecipeModel
+	Recipes        *models.RecipeModel
+	SessionManager *scs.SessionManager
 }
 
 var counter int = 0
