@@ -33,7 +33,7 @@ func Home(recipes []models.Recipe) templ.Component {
 				templ_7745c5c3_Buffer = templ.GetBuffer()
 				defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div><h1>Home</h1><p>Welcome to the Home page.</p><div class=\"mx-auto px-6 max-w-7xl\"><div class=\"py-10 mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-2\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"mx-auto px-6 max-w-7xl\"><div class=\"py-10 mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -47,14 +47,14 @@ func Home(recipes []models.Recipe) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"><div class=\"card w-96 bg-base-100 shadow-xl\"><figure><img src=\"/static/img/istockphoto-1403973419-612x612.jpg\" alt=\"Shoes\"></figure><div class=\"card-body\"><h2 class=\"card-title\">")
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"><div class=\"card w-96 bg-base-100 shadow-xl py-6\"><figure><img src=\"/static/img/istockphoto-1403973419-612x612.jpg\" alt=\"Shoes\"></figure><div class=\"card-body\"><h2 class=\"card-title\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(recipe.Title)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/page/home.templ`, Line: 19, Col: 24}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/page/home.templ`, Line: 16, Col: 23}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
@@ -67,7 +67,7 @@ func Home(recipes []models.Recipe) templ.Component {
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(recipe.Description)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/page/home.templ`, Line: 22, Col: 32}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/page/home.templ`, Line: 19, Col: 31}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
@@ -85,7 +85,7 @@ func Home(recipes []models.Recipe) templ.Component {
 					var templ_7745c5c3_Var6 string
 					templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(category)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/page/home.templ`, Line: 25, Col: 54}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/page/home.templ`, Line: 22, Col: 53}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 					if templ_7745c5c3_Err != nil {
@@ -101,7 +101,7 @@ func Home(recipes []models.Recipe) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></div></div>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
