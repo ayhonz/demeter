@@ -38,7 +38,7 @@ func Home(recipes []models.Recipe) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			for _, recipe := range recipes {
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<a class=\"w-96\" href=\"")
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<a class=\"w-96 py-3\" href=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -47,7 +47,7 @@ func Home(recipes []models.Recipe) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"><div class=\"card w-96 bg-base-100 shadow-xl py-6\"><figure><img src=\"/static/img/istockphoto-1403973419-612x612.jpg\" alt=\"Shoes\"></figure><div class=\"card-body\"><h2 class=\"card-title\">")
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"><div class=\"card w-96 bg-base-100 shadow-xl \"><figure><img src=\"/static/img/istockphoto-1403973419-612x612.jpg\" alt=\"Shoes\"></figure><div class=\"card-body\"><h2 class=\"card-title\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
