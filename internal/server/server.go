@@ -76,5 +76,13 @@ func (app *Application) Routes() http.Handler {
 		return Render(c, 200, page.Detail(recipe))
 	})
 
+	e.GET("/login", func(c echo.Context) error {
+		return Render(c, 200, page.Login())
+	})
+
+	e.GET("/signup", func(c echo.Context) error {
+		return Render(c, 200, page.Signup())
+	})
+
 	return e
 }

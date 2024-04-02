@@ -22,9 +22,11 @@ templ Base() {
 			<title>RACOOK</title>
 		</head>
 		<body class="bg-neutral">
-			@partials.Navbar()
-			{ children... }
-			@partials.Footer()
+			<div class="flex min-h-screen w-screen flex-col">
+				@partials.Navbar()
+				{ children... }
+				@partials.Footer()
+			</div>
 		</body>
 	</html>
 }
