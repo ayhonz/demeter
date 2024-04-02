@@ -1,15 +1,14 @@
 package server
 
 import (
-	"fmt"
 	"net/http"
 	"racook/internal/models"
-	"racook/views/page"
 
 	"github.com/a-h/templ"
 	"github.com/alexedwards/scs/v2"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	session "github.com/spazzymoto/echo-scs-session"
 )
 
 type Application struct {
@@ -40,51 +39,13 @@ func (app *Application) Routes() http.Handler {
 
 	e.Static("/static", "assets")
 
-	e.GET("/", func(c echo.Context) error {
+	e.GET("/", app.HomePageHander, session.LoadAndSave(app.SessionManager))
+	e.GET("/recipes/create", app.CreateRecipePageHandler, session.LoadAndSave(app.SessionManager))
+	e.POST("/recipes", app.CreateRecipeHandler, session.LoadAndSave(app.SessionManager))
+	e.GET("/recipes/:id", app.GetDetailHandler, session.LoadAndSave(app.SessionManager))
 
-		recipe, err := app.Recipes.List()
-		if err != nil {
-			return err
-		}
-
-		return Render(c, 200, page.Home(recipe))
-	})
-
-	e.GET("/recipes/create", func(c echo.Context) error {
-		return Render(c, 200, page.CreateRecipe())
-	})
-
-	e.POST("/recipes", func(c echo.Context) error {
-		var recipe RecipeForm
-		err := c.Bind(&recipe)
-
-		id, err := app.Recipes.Insert(recipe.Title, recipe.Description, recipe.Ingredients, recipe.Categories)
-		if err != nil {
-			return err
-		}
-
-		// Is this redirect correct? :?
-		c.Response().Header().Set("HX-Redirect", fmt.Sprintf("/recipes/%d", id))
-		return c.String(http.StatusAccepted, "Created")
-	})
-	e.GET("/recipes/:id", func(c echo.Context) error {
-		id := c.Param("id")
-
-		recipe, err := app.Recipes.Get(id)
-		if err != nil {
-			return err
-		}
-
-		return Render(c, 200, page.Detail(recipe))
-	})
-
-	e.GET("/login", func(c echo.Context) error {
-		return Render(c, 200, page.Login())
-	})
-
-	e.GET("/signup", func(c echo.Context) error {
-		return Render(c, 200, page.Signup())
-	})
+	e.GET("/login", app.LoginPageHandler, session.LoadAndSave(app.SessionManager))
+	e.GET("/signup", app.SignupPageHandler, session.LoadAndSave(app.SessionManager))
 
 	return e
 }
