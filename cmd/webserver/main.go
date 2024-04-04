@@ -26,6 +26,7 @@ func main() {
 
 	app := &server.Application{
 		Recipes:        &models.RecipeModel{DB: connection.Db},
+		Users:          &models.UserModel{DB: connection.Db},
 		SessionManager: connection.SessionManager,
 	}
 

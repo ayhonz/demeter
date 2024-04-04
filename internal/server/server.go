@@ -13,6 +13,7 @@ import (
 
 type Application struct {
 	Recipes        *models.RecipeModel
+	Users          *models.UserModel
 	SessionManager *scs.SessionManager
 }
 
@@ -44,8 +45,11 @@ func (app *Application) Routes() http.Handler {
 	e.POST("/recipes", app.CreateRecipeHandler, session.LoadAndSave(app.SessionManager))
 	e.GET("/recipes/:id", app.GetDetailHandler, session.LoadAndSave(app.SessionManager))
 
-	e.GET("/login", app.LoginPageHandler, session.LoadAndSave(app.SessionManager))
-	e.GET("/signup", app.SignupPageHandler, session.LoadAndSave(app.SessionManager))
+	e.GET("/user/login", app.LoginPageHandler, session.LoadAndSave(app.SessionManager))
+	e.GET("/user/signup", app.SignupPageHandler, session.LoadAndSave(app.SessionManager))
+	e.POST("/user/login", app.LoginHandler, session.LoadAndSave(app.SessionManager))
+	e.POST("/user/signup", app.SignupHandler, session.LoadAndSave(app.SessionManager))
+	e.POST("/user/logout", app.LogoutHandler, session.LoadAndSave(app.SessionManager))
 
 	return e
 }

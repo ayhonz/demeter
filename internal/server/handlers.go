@@ -54,3 +54,15 @@ func (app *Application) LoginPageHandler(c echo.Context) error {
 func (app *Application) SignupPageHandler(c echo.Context) error {
 	return Render(c, 200, page.Signup())
 }
+
+func (app *Application) SignupHandler(c echo.Context) error {
+	return Render(c, 200, page.Signup())
+}
+
+func (app *Application) LoginHandler(c echo.Context) error {
+	return Render(c, 200, page.Signup())
+}
+
+func (app *Application) LogoutHandler(c echo.Context) error {
+	return Render(c, 200, page.Signup())
+}
