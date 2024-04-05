@@ -20,6 +20,11 @@ type UserModel struct {
 	DB *sqlx.DB
 }
 
+type authenticateUser struct {
+	ID             int    `db:"id"`
+	HashedPassword []byte `db:"hashed_password"`
+}
+
 func (m *UserModel) Insert(email, firstName, lastName, password string) error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 12)
 	if err != nil {
@@ -36,7 +41,21 @@ func (m *UserModel) Insert(email, firstName, lastName, password string) error {
 }
 
 func (m *UserModel) Authenticate(email, password string) (int, error) {
-	return 0, nil
+	var dbUser authenticateUser
+
+	stmt := `SELECT id, hashed_password FROM users WHERE email=$1`
+
+	err := m.DB.Get(&dbUser, stmt, email)
+	if err != nil {
+		return 0, err
+	}
+
+	err = bcrypt.CompareHashAndPassword(dbUser.HashedPassword, []byte(password))
+	if err != nil {
+		return 0, err
+	}
+
+	return dbUser.ID, nil
 }
 
 func (m *UserModel) Exists(id int) (bool, error) {

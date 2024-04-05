@@ -22,6 +22,11 @@ type userSigunForm struct {
 	LastName  string `form:"last_name"`
 }
 
+type userLoginform struct {
+	Email    string `form:"email"`
+	Password string `form:"password"`
+}
+
 func (app *Application) HomePageHander(c echo.Context) error {
 
 	recipe, err := app.Recipes.List()
@@ -89,7 +94,25 @@ func (app *Application) SignupHandler(c echo.Context) error {
 }
 
 func (app *Application) LoginHandler(c echo.Context) error {
-	return Render(c, 200, page.Signup())
+	var user userLoginform
+	err := c.Bind(&user)
+	if err != nil {
+		return err
+	}
+
+	id, err := app.Users.Authenticate(user.Email, user.Password)
+	if err != nil {
+		return err
+	}
+
+	err = app.SessionManager.RenewToken(c.Request().Context())
+	if err != nil {
+		return err
+	}
+	app.SessionManager.Put(c.Request().Context(), "authenticatedUserID", id)
+
+	c.Response().Header().Set("HX-Redirect", "/")
+	return c.String(http.StatusOK, "Logged in")
 }
 
 func (app *Application) LogoutHandler(c echo.Context) error {
