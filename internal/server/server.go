@@ -19,13 +19,6 @@ type Application struct {
 
 var counter int = 0
 
-type RecipeForm struct {
-	Title       string   `form:"title"`
-	Description string   `form:"description"`
-	Categories  []string `form:"categories[]"`
-	Ingredients []string `form:"ingredients[]"`
-}
-
 func Render(ctx echo.Context, statusCode int, t templ.Component) error {
 	ctx.Response().Writer.WriteHeader(statusCode)
 	ctx.Response().Header().Set(echo.HeaderContentType, echo.MIMETextHTML)

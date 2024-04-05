@@ -8,6 +8,20 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+type recipeForm struct {
+	Title       string   `form:"title"`
+	Description string   `form:"description"`
+	Categories  []string `form:"categories[]"`
+	Ingredients []string `form:"ingredients[]"`
+}
+
+type userSigunForm struct {
+	Email     string `form:"email"`
+	Password  string `form:"password"`
+	FirstName string `form:"first_name"`
+	LastName  string `form:"last_name"`
+}
+
 func (app *Application) HomePageHander(c echo.Context) error {
 
 	recipe, err := app.Recipes.List()
@@ -23,8 +37,11 @@ func (app *Application) CreateRecipePageHandler(c echo.Context) error {
 }
 
 func (app *Application) CreateRecipeHandler(c echo.Context) error {
-	var recipe RecipeForm
+	var recipe recipeForm
 	err := c.Bind(&recipe)
+	if err != nil {
+		return err
+	}
 
 	id, err := app.Recipes.Insert(recipe.Title, recipe.Description, recipe.Ingredients, recipe.Categories)
 	if err != nil {
@@ -56,7 +73,19 @@ func (app *Application) SignupPageHandler(c echo.Context) error {
 }
 
 func (app *Application) SignupHandler(c echo.Context) error {
-	return Render(c, 200, page.Signup())
+	var user userSigunForm
+	err := c.Bind(&user)
+	if err != nil {
+		return err
+	}
+	err = app.Users.Insert(user.Email, user.FirstName, user.LastName, user.Password)
+	if err != nil {
+		return err
+	}
+
+	// prob want to do it on client with HX
+	c.Response().Header().Set("HX-Redirect", "/")
+	return c.String(http.StatusAccepted, "Created")
 }
 
 func (app *Application) LoginHandler(c echo.Context) error {
