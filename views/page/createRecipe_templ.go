@@ -32,7 +32,15 @@ func CreateRecipe(data views.TemplateData) templ.Component {
 				templ_7745c5c3_Buffer = templ.GetBuffer()
 				defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form hx-post=\"/recipes\"><label for=\"title\">Title:</label> <input type=\"text\" name=\"title\"> <label for=\"description\">Description:</label> <textarea name=\"description\"></textarea> <label for=\"categories\">Categories:</label><ul id=\"categoriesList\"><li><input type=\"text\" name=\"categories[]\"></li></ul><label for=\"ingredients\">Ingredients:</label><ul id=\"ingredientsList\"><li><input type=\"text\" name=\"ingredients[]\"></li></ul><button type=\"submit\">Create Recipe</button></form>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form hx-post=\"/recipes\"><input type=\"hidden\" name=\"csrf\" value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(data.CRSFToken))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"> <label for=\"title\">Title:</label> <input type=\"text\" name=\"title\"> <label for=\"description\">Description:</label> <textarea name=\"description\"></textarea> <label for=\"categories\">Categories:</label><ul id=\"categoriesList\"><li><input type=\"text\" name=\"categories[]\"></li></ul><label for=\"ingredients\">Ingredients:</label><ul id=\"ingredientsList\"><li><input type=\"text\" name=\"ingredients[]\"></li></ul><button type=\"submit\">Create Recipe</button></form>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -41,7 +49,7 @@ func CreateRecipe(data views.TemplateData) templ.Component {
 			}
 			return templ_7745c5c3_Err
 		})
-		templ_7745c5c3_Err = layout.Base(data.Authenticated).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layout.Base(data).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

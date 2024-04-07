@@ -7,4 +7,5 @@ type TemplateData struct {
 	Authenticated bool
 	Recipe        models.Recipe
 	Recipes       []models.Recipe
+	CRSFToken     string
 }

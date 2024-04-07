@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"racook/views/page"
 
@@ -34,14 +35,15 @@ func (app *Application) HomePageHander(c echo.Context) error {
 		return err
 	}
 
-	templData := app.newTemplateData(c.Request())
+	log.Println(c.Get("csrf"))
+	templData := app.newTemplateData(c)
 	templData.Recipes = recipes
 
 	return Render(c, 200, page.Home(templData))
 }
 
 func (app *Application) CreateRecipePageHandler(c echo.Context) error {
-	templData := app.newTemplateData(c.Request())
+	templData := app.newTemplateData(c)
 
 	return Render(c, 200, page.CreateRecipe(templData))
 }
@@ -71,18 +73,22 @@ func (app *Application) GetDetailHandler(c echo.Context) error {
 		return err
 	}
 
-	templData := app.newTemplateData(c.Request())
+	templData := app.newTemplateData(c)
 	templData.Recipe = recipe
 
 	return Render(c, 200, page.Detail(templData))
 }
 
 func (app *Application) LoginPageHandler(c echo.Context) error {
-	return Render(c, 200, page.Login())
+	templData := app.newTemplateData(c)
+
+	return Render(c, 200, page.Login(templData))
 }
 
 func (app *Application) SignupPageHandler(c echo.Context) error {
-	return Render(c, 200, page.Signup())
+	templData := app.newTemplateData(c)
+
+	return Render(c, 200, page.Signup(templData))
 }
 
 func (app *Application) SignupHandler(c echo.Context) error {

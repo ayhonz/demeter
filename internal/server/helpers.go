@@ -2,15 +2,17 @@ package server
 
 import (
 	"context"
-	"net/http"
 	"racook/views"
 	"time"
+
+	"github.com/labstack/echo/v4"
 )
 
-func (app *Application) newTemplateData(r *http.Request) views.TemplateData {
+func (app *Application) newTemplateData(c echo.Context) views.TemplateData {
 	return views.TemplateData{
 		CurrentYear:   time.Now().Year(),
-		Authenticated: app.isAuthenticated(r.Context()),
+		Authenticated: app.isAuthenticated(c.Request().Context()),
+		CRSFToken:     c.Get("csrf").(string),
 	}
 }
 

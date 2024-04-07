@@ -28,6 +28,12 @@ func (app *Application) Routes() http.Handler {
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
 		Format: "method=${method}, uri=${uri}, status=${status}, took=${latency_human}, error=${error}\n",
 	}))
+	e.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
+		TokenLookup:    "form:csrf",
+		CookieHTTPOnly: true,
+		CookieSecure:   true,
+		CookiePath:     "/",
+	}))
 
 	e.Static("/static", "assets")
 
