@@ -33,7 +33,7 @@ func Navbar(isAuthenticated bool) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<ul class=\"menu menu-horizontal px-1\"><li><button class=\"btn btn-ghost\" hx-post=\"/user/logout\">Logout</button></li></ul>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<ul class=\"menu menu-horizontal px-1\"><li><button class=\"btn btn-ghost\" hx-get=\"/recipes/create\" hx-target=\"body\">Create Recipe</button></li><li><button class=\"btn btn-ghost\" hx-post=\"/user/logout\">Logout</button></li></ul>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
