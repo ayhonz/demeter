@@ -1,15 +1,21 @@
 package partials
 
-templ Navbar() {
+templ Navbar(isAuthenticated bool) {
 	<div class="navbar bg-base-300">
 		<div class="flex-1">
 			<a href="/" class="btn btn-ghost text-xl">RACOOK</a>
 		</div>
 		<div class="flex-none">
-			<ul class="menu menu-horizontal px-1">
-				<li><a href="user/login">login</a></li>
-				<li><a href="user/signup">signup</a></li>
-			</ul>
+			if !isAuthenticated {
+				<ul class="menu menu-horizontal px-1">
+					<li><a href="/user/login">Login</a></li>
+					<li><a href="/user/signup">Signup</a></li>
+				</ul>
+			} else {
+				<ul class="menu menu-horizontal px-1">
+					<li><button class="btn btn-ghost" hx-post="/user/logout">Logout</button></li>
+				</ul>
+			}
 		</div>
 	</div>
 }

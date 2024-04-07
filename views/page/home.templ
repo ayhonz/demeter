@@ -1,14 +1,14 @@
 package page
 
 import "racook/views/layout"
-import "racook/internal/models"
 import "fmt"
+import "racook/views"
 
-templ Home(recipes []models.Recipe) {
-	@layout.Base() {
+templ Home(data views.TemplateData) {
+	@layout.Base(data.Authenticated) {
 		<div class="mx-auto px-6 max-w-7xl">
 			<div class="py-10 mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
-				for _, recipe := range recipes {
+				for _, recipe := range data.Recipes {
 					<a class="w-96 py-3" href={ templ.URL(fmt.Sprintf("/recipes/%d", recipe.ID)) }>
 						<div class="card w-96 bg-base-100 shadow-xl ">
 							<figure><img src="/static/img/istockphoto-1403973419-612x612.jpg" alt="Shoes"/></figure>

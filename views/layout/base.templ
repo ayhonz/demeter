@@ -2,7 +2,7 @@ package layout
 
 import "racook/views/partials"
 
-templ Base() {
+templ Base(isAuthenticated bool) {
 	<!DOCTYPE html>
 	<html lang="en" data-theme="dark">
 		<head>
@@ -23,7 +23,7 @@ templ Base() {
 		</head>
 		<body class="bg-neutral">
 			<div class="flex min-h-screen w-screen flex-col">
-				@partials.Navbar()
+				@partials.Navbar(isAuthenticated)
 				{ children... }
 				@partials.Footer()
 			</div>

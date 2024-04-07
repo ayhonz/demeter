@@ -10,7 +10,7 @@ import "context"
 import "io"
 import "bytes"
 
-func Navbar() templ.Component {
+func Navbar(isAuthenticated bool) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -23,7 +23,22 @@ func Navbar() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"navbar bg-base-300\"><div class=\"flex-1\"><a href=\"/\" class=\"btn btn-ghost text-xl\">RACOOK</a></div><div class=\"flex-none\"><ul class=\"menu menu-horizontal px-1\"><li><a href=\"user/login\">login</a></li><li><a href=\"user/signup\">signup</a></li></ul></div></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"navbar bg-base-300\"><div class=\"flex-1\"><a href=\"/\" class=\"btn btn-ghost text-xl\">RACOOK</a></div><div class=\"flex-none\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if !isAuthenticated {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<ul class=\"menu menu-horizontal px-1\"><li><a href=\"/user/login\">Login</a></li><li><a href=\"/user/signup\">Signup</a></li></ul>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<ul class=\"menu menu-horizontal px-1\"><li><button class=\"btn btn-ghost\" hx-post=\"/user/logout\">Logout</button></li></ul>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

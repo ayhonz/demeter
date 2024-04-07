@@ -1,9 +1,10 @@
 package page;
 
 import "racook/views/layout"
+import "racook/views"
 
-templ CreateRecipe() {
-	@layout.Base() {
+templ CreateRecipe(data views.TemplateData) {
+	@layout.Base(data.Authenticated) {
 		<form hx-post="/recipes">
 			<label for="title">Title:</label>
 			<input type="text" name="title"/>

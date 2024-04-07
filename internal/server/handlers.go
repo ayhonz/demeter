@@ -29,16 +29,21 @@ type userLoginform struct {
 
 func (app *Application) HomePageHander(c echo.Context) error {
 
-	recipe, err := app.Recipes.List()
+	recipes, err := app.Recipes.List()
 	if err != nil {
 		return err
 	}
 
-	return Render(c, 200, page.Home(recipe))
+	templData := app.newTemplateData(c.Request())
+	templData.Recipes = recipes
+
+	return Render(c, 200, page.Home(templData))
 }
 
 func (app *Application) CreateRecipePageHandler(c echo.Context) error {
-	return Render(c, 200, page.CreateRecipe())
+	templData := app.newTemplateData(c.Request())
+
+	return Render(c, 200, page.CreateRecipe(templData))
 }
 
 func (app *Application) CreateRecipeHandler(c echo.Context) error {
@@ -66,7 +71,10 @@ func (app *Application) GetDetailHandler(c echo.Context) error {
 		return err
 	}
 
-	return Render(c, 200, page.Detail(recipe))
+	templData := app.newTemplateData(c.Request())
+	templData.Recipe = recipe
+
+	return Render(c, 200, page.Detail(templData))
 }
 
 func (app *Application) LoginPageHandler(c echo.Context) error {
@@ -116,5 +124,13 @@ func (app *Application) LoginHandler(c echo.Context) error {
 }
 
 func (app *Application) LogoutHandler(c echo.Context) error {
-	return Render(c, 200, page.Signup())
+	err := app.SessionManager.RenewToken(c.Request().Context())
+	if err != nil {
+		return err
+	}
+
+	app.SessionManager.Remove(c.Request().Context(), "authenticatedUserID")
+
+	c.Response().Header().Set("HX-Redirect", "/")
+	return c.String(http.StatusOK, "Logged out")
 }

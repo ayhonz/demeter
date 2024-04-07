@@ -28,7 +28,7 @@ VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING id;`
 
 	var id int64
-	err := m.DB.Get(&id, stmt, title, description, time.Now(), time.Now(), categories, ingredients, 1)
+	err := m.DB.Get(&id, stmt, title, description, time.Now(), time.Now(), categories, ingredients, 11)
 	if err != nil {
 		return 0, err
 	}

@@ -11,10 +11,10 @@ import "io"
 import "bytes"
 
 import "racook/views/layout"
-import "racook/internal/models"
 import "time"
+import "racook/views"
 
-func Detail(recipe models.Recipe) templ.Component {
+func Detail(data views.TemplateData) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -38,9 +38,9 @@ func Detail(recipe models.Recipe) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(recipe.Title)
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(data.Recipe.Title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/page/detail.templ`, Line: 10, Col: 70}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/page/detail.templ`, Line: 10, Col: 75}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -50,7 +50,7 @@ func Detail(recipe models.Recipe) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			for _, category := range recipe.Categories {
+			for _, category := range data.Recipe.Categories {
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"badge badge-accent\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -74,9 +74,9 @@ func Detail(recipe models.Recipe) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var5 string
-			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(recipe.Description)
+			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(data.Recipe.Description)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/page/detail.templ`, Line: 18, Col: 25}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/page/detail.templ`, Line: 18, Col: 30}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -87,9 +87,9 @@ func Detail(recipe models.Recipe) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var6 string
-			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(recipe.CreatedAt.Format(time.DateOnly))
+			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(data.Recipe.CreatedAt.Format(time.DateOnly))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/page/detail.templ`, Line: 20, Col: 44}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/page/detail.templ`, Line: 20, Col: 49}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -100,9 +100,9 @@ func Detail(recipe models.Recipe) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var7 string
-			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(recipe.UpdatedAt.Format(time.DateOnly))
+			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(data.Recipe.UpdatedAt.Format(time.DateOnly))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/page/detail.templ`, Line: 21, Col: 44}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/page/detail.templ`, Line: 21, Col: 49}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -117,7 +117,7 @@ func Detail(recipe models.Recipe) templ.Component {
 			}
 			return templ_7745c5c3_Err
 		})
-		templ_7745c5c3_Err = layout.Base().Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layout.Base(data.Authenticated).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
