@@ -22,13 +22,13 @@ type RecipeModel struct {
 	DB *sqlx.DB
 }
 
-func (m *RecipeModel) Insert(title, description string, ingredients, categories pq.StringArray) (int, error) {
+func (m *RecipeModel) Insert(userID int, title, description string, ingredients, categories pq.StringArray) (int, error) {
 	stmt := `INSERT INTO recipes (title, description, created_at, updated_at, categories, ingredients, user_id)
 VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING id;`
 
 	var id int64
-	err := m.DB.Get(&id, stmt, title, description, time.Now(), time.Now(), categories, ingredients, 11)
+	err := m.DB.Get(&id, stmt, title, description, time.Now(), time.Now(), categories, ingredients, userID)
 	if err != nil {
 		return 0, err
 	}

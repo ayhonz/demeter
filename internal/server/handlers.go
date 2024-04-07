@@ -54,8 +54,14 @@ func (app *Application) CreateRecipeHandler(c echo.Context) error {
 	if err != nil {
 		return err
 	}
+	// probably should move it somewhere else
+	// but it will do for now :)
+	userId := app.SessionManager.GetInt(c.Request().Context(), "authenticatedUserID")
+	if userId == 0 {
+		return c.String(http.StatusUnauthorized, "Unauthorized")
+	}
 
-	id, err := app.Recipes.Insert(recipe.Title, recipe.Description, recipe.Ingredients, recipe.Categories)
+	id, err := app.Recipes.Insert(userId, recipe.Title, recipe.Description, recipe.Ingredients, recipe.Categories)
 	if err != nil {
 		return err
 	}
