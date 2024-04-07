@@ -17,8 +17,6 @@ type Application struct {
 	SessionManager *scs.SessionManager
 }
 
-var counter int = 0
-
 func Render(ctx echo.Context, statusCode int, t templ.Component) error {
 	ctx.Response().Writer.WriteHeader(statusCode)
 	ctx.Response().Header().Set(echo.HeaderContentType, echo.MIMETextHTML)
@@ -34,15 +32,15 @@ func (app *Application) Routes() http.Handler {
 	e.Static("/static", "assets")
 
 	e.GET("/", app.HomePageHander, session.LoadAndSave(app.SessionManager))
-	e.GET("/recipes/create", app.CreateRecipePageHandler, session.LoadAndSave(app.SessionManager))
-	e.POST("/recipes", app.CreateRecipeHandler, session.LoadAndSave(app.SessionManager))
+	e.GET("/recipes/create", app.CreateRecipePageHandler, session.LoadAndSave(app.SessionManager), app.requireAuthentication)
+	e.POST("/recipes", app.CreateRecipeHandler, session.LoadAndSave(app.SessionManager), app.requireAuthentication)
 	e.GET("/recipes/:id", app.GetDetailHandler, session.LoadAndSave(app.SessionManager))
 
 	e.GET("/user/login", app.LoginPageHandler, session.LoadAndSave(app.SessionManager))
 	e.GET("/user/signup", app.SignupPageHandler, session.LoadAndSave(app.SessionManager))
 	e.POST("/user/login", app.LoginHandler, session.LoadAndSave(app.SessionManager))
 	e.POST("/user/signup", app.SignupHandler, session.LoadAndSave(app.SessionManager))
-	e.POST("/user/logout", app.LogoutHandler, session.LoadAndSave(app.SessionManager))
+	e.POST("/user/logout", app.LogoutHandler, session.LoadAndSave(app.SessionManager), app.requireAuthentication)
 
 	return e
 }
