@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"racook/views"
 	"racook/views/page"
 
+	"github.com/a-h/templ"
 	"github.com/labstack/echo/v4"
 )
 
@@ -145,4 +147,23 @@ func (app *Application) LogoutHandler(c echo.Context) error {
 
 	c.Response().Header().Set("HX-Redirect", "/")
 	return c.String(http.StatusOK, "Logged out")
+}
+
+func (app *Application) CustomHTTPErrorHandler(err error, c echo.Context) {
+	code := http.StatusInternalServerError
+	if he, ok := err.(*echo.HTTPError); ok {
+		code = he.Code
+	}
+	c.Logger().Error(err)
+
+	var errorPage func(data views.TemplateData) templ.Component
+
+	if code == http.StatusNotFound {
+		errorPage = page.NotFound
+	} else {
+		errorPage = page.Error
+	}
+
+	templData := app.newTemplateData(c)
+	Render(c, code, errorPage(templData))
 }

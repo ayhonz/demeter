@@ -37,16 +37,20 @@ func (app *Application) Routes() http.Handler {
 
 	e.Static("/static", "assets")
 
-	e.GET("/", app.HomePageHander, session.LoadAndSave(app.SessionManager))
-	e.GET("/recipes/create", app.CreateRecipePageHandler, session.LoadAndSave(app.SessionManager), app.requireAuthentication)
-	e.POST("/recipes", app.CreateRecipeHandler, session.LoadAndSave(app.SessionManager), app.requireAuthentication)
-	e.GET("/recipes/:id", app.GetDetailHandler, session.LoadAndSave(app.SessionManager))
+	e.Use(session.LoadAndSave(app.SessionManager))
 
-	e.GET("/user/login", app.LoginPageHandler, session.LoadAndSave(app.SessionManager))
-	e.GET("/user/signup", app.SignupPageHandler, session.LoadAndSave(app.SessionManager))
-	e.POST("/user/login", app.LoginHandler, session.LoadAndSave(app.SessionManager))
-	e.POST("/user/signup", app.SignupHandler, session.LoadAndSave(app.SessionManager))
-	e.POST("/user/logout", app.LogoutHandler, session.LoadAndSave(app.SessionManager), app.requireAuthentication)
+	e.GET("/", app.HomePageHander)
+	e.GET("/recipes/create", app.CreateRecipePageHandler, app.requireAuthentication)
+	e.POST("/recipes", app.CreateRecipeHandler, app.requireAuthentication)
+	e.GET("/recipes/:id", app.GetDetailHandler)
+
+	e.GET("/user/login", app.LoginPageHandler)
+	e.GET("/user/signup", app.SignupPageHandler)
+	e.POST("/user/login", app.LoginHandler)
+	e.POST("/user/signup", app.SignupHandler)
+	e.POST("/user/logout", app.LogoutHandler, app.requireAuthentication)
+
+	e.HTTPErrorHandler = app.CustomHTTPErrorHandler
 
 	return e
 }

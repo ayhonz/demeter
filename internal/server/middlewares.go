@@ -15,3 +15,23 @@ func (app *Application) requireAuthentication(next echo.HandlerFunc) echo.Handle
 		return next(c)
 	}
 }
+
+func (app *Application) authenticate(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		id := app.SessionManager.GetInt(c.Request().Context(), "authenticatedUserID")
+		if id == 0 {
+			next(c)
+			return nil
+		}
+
+		exists, err := app.Users.Exists(id)
+		if err != nil {
+			c.Error(err)
+		}
+
+		if exists {
+		}
+		return nil
+
+	}
+}
