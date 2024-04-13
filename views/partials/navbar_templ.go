@@ -28,12 +28,12 @@ func Navbar(isAuthenticated bool, CSRFToken string) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if !isAuthenticated {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<ul class=\"menu menu-horizontal px-1\"><li><a href=\"/user/login\">Login</a></li><li><a href=\"/user/signup\">Signup</a></li></ul>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<ul class=\"menu menu-horizontal px-1\"><button class=\"btn btn-ghost\" hx-get=\"/user/login\" hx-push-url=\"true\" hx-target=\"body\">Login</button> <button class=\"btn btn-ghost\" hx-get=\"/user/signup\" hx-push-url=\"true\" hx-target=\"body\">Signup</button></ul>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<ul class=\"menu menu-horizontal px-1\"><li><button class=\"btn btn-ghost\" hx-get=\"/recipes/create\" hx-target=\"body\">Create Recipe</button></li><li><form hx-post=\"/user/logout\" hx-target=\"body\"><input type=\"hidden\" name=\"csrf\" value=\"")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<ul class=\"menu menu-horizontal px-1\"><button class=\"btn btn-ghost\" hx-get=\"/recipes/create\" hx-push-url=\"true\" hx-target=\"body\">Create Recipe</button><form class=\"no-style\" hx-post=\"/user/logout\" hx-target=\"body\"><input type=\"hidden\" name=\"csrf\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -41,7 +41,7 @@ func Navbar(isAuthenticated bool, CSRFToken string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"> <button class=\"btn btn-ghost\">Logout</button></form></li></ul>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"> <button type=\"submit\" class=\"btn btn-ghost\">Logout</button></form></ul>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

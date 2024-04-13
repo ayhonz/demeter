@@ -8,18 +8,16 @@ templ Navbar(isAuthenticated bool, CSRFToken string) {
 		<div class="flex-none">
 			if !isAuthenticated {
 				<ul class="menu menu-horizontal px-1">
-					<li><a href="/user/login">Login</a></li>
-					<li><a href="/user/signup">Signup</a></li>
+					<button class="btn btn-ghost" hx-get="/user/login" hx-push-url="true" hx-target="body">Login</button>
+					<button class="btn btn-ghost" hx-get="/user/signup" hx-push-url="true" hx-target="body">Signup</button>
 				</ul>
 			} else {
 				<ul class="menu menu-horizontal px-1">
-					<li><button class="btn btn-ghost" hx-get="/recipes/create" hx-target="body">Create Recipe</button></li>
-					<li>
-						<form hx-post="/user/logout" hx-target="body">
-							<input type="hidden" name="csrf" value={ CSRFToken }/>
-							<button class="btn btn-ghost">Logout</button>
-						</form>
-					</li>
+					<button class="btn btn-ghost" hx-get="/recipes/create" hx-push-url="true" hx-target="body">Create Recipe</button>
+					<form class="no-style" hx-post="/user/logout" hx-target="body">
+						<input type="hidden" name="csrf" value={ CSRFToken }/>
+						<button type="submit" class="btn btn-ghost">Logout</button>
+					</form>
 				</ul>
 			}
 		</div>
